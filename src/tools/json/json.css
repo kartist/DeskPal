@@ -1,4 +1,4 @@
-/* JSON 工具面板 — 单列布局 */
+/* JSON 工具面板 — 输入框占大部分空间，底部固定按钮+JSONPath */
 .j-container {
   padding: 12px;
   flex: 1;
@@ -8,20 +8,20 @@
   gap: 8px;
 }
 
-/* 滚动区域 — textarea + 按钮 + JSONPath 作为一个整体随窗口变化 */
-.j-scroll {
+/* 主体区域 — flex 分配输入框与结果区 */
+.j-body {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-/* 输入区 textarea */
+/* 主输入框 — 默认占满剩余空间，内部滚动 */
 .j-textarea {
   width: 100%;
-  min-height: 120px;
+  flex: 1;
+  min-height: 80px;
   background: var(--input-bg);
   border: 1px solid var(--input-border);
   border-radius: 6px;
@@ -30,11 +30,45 @@
   font-size: 13px;
   color: var(--input-text);
   outline: none;
-  resize: vertical;
+  resize: none;
   line-height: 1.5;
+  overflow-y: auto;
+}
+.j-textarea:focus { border-color: var(--accent); }
+
+/* 当 JSONPath 有内容时，输入框压缩为 30% */
+.j-textarea.compact {
+  flex: 0 0 30%;
+  min-height: 80px;
 }
 
-.j-textarea:focus { border-color: var(--accent); }
+/* JSONPath 结果区 — 只读文本框，内部滚动 */
+.j-result-area {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  background: var(--output-bg);
+  border: 1px solid var(--btn-border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-primary);
+  outline: none;
+  resize: none;
+  line-height: 1.5;
+  overflow-y: auto;
+  white-space: pre;
+  cursor: pointer;
+  animation: jsonpathFadeIn 150ms ease-out;
+}
+.j-result-area::selection {
+  background: var(--accent);
+  color: #fff;
+}
+.j-result-area:hover {
+  border-color: var(--accent);
+}
 
 /* 按钮组 */
 .j-btn-group {
@@ -44,8 +78,6 @@
   align-items: center;
   flex-shrink: 0;
 }
-
-/* 按钮组分隔符 */
 .j-btn-sep {
   width: 1px;
   height: 20px;
@@ -60,7 +92,6 @@
   color: var(--text-muted);
   flex-shrink: 0;
 }
-
 .j-status.ok { color: var(--success); }
 .j-status.error { color: var(--danger); }
 
@@ -83,36 +114,7 @@
   gap: 6px;
   flex-shrink: 0;
 }
-
-.j-jsonpath-row input {
-  flex: 1;
-}
-
-/* JSONPath 结果卡片 */
-.j-jsonpath-result {
-  border: 1px solid var(--btn-border);
-  border-radius: 8px;
-  padding: 8px 12px;
-  background: var(--output-bg);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: var(--text-primary);
-  white-space: pre-wrap;
-  word-break: break-all;
-  line-height: 1.5;
-  user-select: all;
-  cursor: pointer;
-  animation: jsonpathFadeIn 150ms ease-out;
-}
-
-@keyframes jsonpathFadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.j-jsonpath-result:hover {
-  color: var(--accent);
-}
+.j-jsonpath-row input { flex: 1; }
 
 /* 大型 JSON 提示条 */
 .j-warning-banner {
@@ -124,4 +126,9 @@
   border-radius: 4px;
   text-align: center;
   flex-shrink: 0;
+}
+
+@keyframes jsonpathFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
 }

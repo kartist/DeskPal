@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { processJson, sortKeys, escapeJson, unescapeJson, jsonpathQuery } from "./utils";
 import type { JsonResult } from "./utils";
 import { useToast } from "../../store/toastStore";
@@ -9,6 +9,9 @@ export default function JsonTool() {
   const [result, setResult] = useState<JsonResult | null>(null);
   const [jsonpath, setJsonpath] = useState("");
   const [jsonpathResult, setJsonpathResult] = useState<string | null>(null);
+  const resultRef = useRef<HTMLTextAreaElement>(null);
+
+  const hasJsonpath = jsonpath.trim().length > 0;
 
   // 挂载时读剪贴板
   useEffect(() => {
@@ -62,6 +65,15 @@ export default function JsonTool() {
     }, 300);
     return () => clearTimeout(timer);
   }, [jsonpath, input, result?.valid]);
+
+  // 复制 JSONPath 结果
+  const copyJsonpathResult = useCallback(() => {
+    if (!jsonpathResult) return;
+    navigator.clipboard
+      .writeText(jsonpathResult)
+      .then(() => useToast.getState().show("已复制"))
+      .catch(() => {});
+  }, [jsonpathResult]);
 
   // 所有按钮直接操作 input
   const handleFormat = useCallback(() => {
@@ -119,74 +131,75 @@ export default function JsonTool() {
 
   return (
     <div className="tool-panel j-container">
-      {/* 滚动区 — 随窗口大小变化 */}
-      <div className="j-scroll">
-        {/* 输入区 */}
+      {/* 主体区域：输入框 + JSONPath 结果 */}
+      <div className="j-body">
+        {/* JSONPath 结果区 — 仅当 jsonpath 有内容时显示 */}
+        {hasJsonpath && (
+          <textarea
+            ref={resultRef}
+            className="j-result-area"
+            readOnly
+            value={jsonpathResult ?? ""}
+            placeholder={
+              result?.valid
+                ? "输入 JSONPath 查询…"
+                : "请先输入有效的 JSON"
+            }
+            onClick={copyJsonpathResult}
+          />
+        )}
+
+        {/* 主输入框 — 默认占满，有 jsonpath 时压缩至 30% */}
         <textarea
-          className="j-textarea"
+          className={`j-textarea${hasJsonpath ? " compact" : ""}`}
           placeholder="粘贴 JSON 文本…"
           value={input}
           onChange={handleInputChange}
         />
-
-        {/* 大 JSON 提示 */}
-        {result?.valid && result.formatted.length > 1_000_000 && (
-          <div className="j-warning-banner">
-            大型 JSON（{result.formatted.length} 字符）
-          </div>
-        )}
-
-        {/* 按钮组 */}
-        <div className="j-btn-group">
-          <button className="action-btn" onClick={handleFormat} type="button">
-            格式化
-          </button>
-          <button className="action-btn" onClick={handleMinify} type="button">
-            压缩
-          </button>
-          <button className="action-btn" onClick={handleSortKeys} type="button">
-            键排序
-          </button>
-          <button className="action-btn" onClick={handleEscape} type="button">
-            转义
-          </button>
-          <button className="action-btn" onClick={handleUnescape} type="button">
-            反转义
-          </button>
-          <span className="j-btn-sep" />
-          <button className="action-btn" onClick={handleClear} type="button">
-            ↻ 清空
-          </button>
-        </div>
-
-        {/* JSONPath */}
-        {result?.valid && (
-          <div className="j-jsonpath-row">
-            <input
-              className="tool-input"
-              type="text"
-              placeholder="$.store.book[0].title"
-              value={jsonpath}
-              onChange={handleJsonpathChange}
-            />
-          </div>
-        )}
-        {jsonpathResult !== null && (
-          <div
-            className="j-jsonpath-result"
-            onClick={() => {
-              navigator.clipboard
-                .writeText(jsonpathResult)
-                .then(() => useToast.getState().show("已复制"))
-                .catch(() => {});
-            }}
-          >
-            {jsonpathResult}
-          </div>
-        )}
       </div>
 
-      {/* 状态/错误 — 始终在底部可见 */}
+      {/* 大型 JSON 提示 */}
+      {result?.valid && result.formatted.length > 1_000_000 && (
+        <div className="j-warning-banner">
+          大型 JSON（{result.formatted.length} 字符）
+        </div>
+      )}
+
+      {/* 按钮组 */}
+      <div className="j-btn-group">
+        <button className="action-btn" onClick={handleFormat} type="button">
+          格式化
+        </button>
+        <button className="action-btn" onClick={handleMinify} type="button">
+          压缩
+        </button>
+        <button className="action-btn" onClick={handleSortKeys} type="button">
+          键排序
+        </button>
+        <button className="action-btn" onClick={handleEscape} type="button">
+          转义
+        </button>
+        <button className="action-btn" onClick={handleUnescape} type="button">
+          反转义
+        </button>
+        <span className="j-btn-sep" />
+        <button className="action-btn" onClick={handleClear} type="button">
+          ↻ 清空
+        </button>
+      </div>
+
+      {/* JSONPath 输入 — 始终可见 */}
+      <div className="j-jsonpath-row">
+        <input
+          className="tool-input"
+          type="text"
+          placeholder="$.store.book[0].title"
+          value={jsonpath}
+          onChange={handleJsonpathChange}
+        />
+      </div>
+
+      {/* 状态 / 错误 */}
       {result && result.valid && (
         <div className="j-status ok">
           ✓ JSON 格式正确 ({result.parseTime}ms) |{" "}
