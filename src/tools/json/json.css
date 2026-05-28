@@ -1,11 +1,11 @@
 /* JSON 工具面板 — 输入框占大部分空间，底部固定按钮+JSONPath */
 .j-container {
-  padding: 12px;
-  flex: 1;
-  min-height: 0;
+  height: 100%;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding: 12px;
 }
 
 /* 主体区域 — flex 分配输入框与结果区 */
