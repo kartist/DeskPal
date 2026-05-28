@@ -1,50 +1,18 @@
-/* JSON 工具面板 — j- 前缀防泄漏 */
+/* JSON 工具面板 — 单列布局，所有操作在输入框内原地完成 */
 .j-container {
   padding: 12px;
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-}
-
-/* 响应式双栏布局 — 窄屏上下50%，宽屏左右100% */
-.j-layout {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 10px;
-  flex: 1;
-  min-height: 0;
-}
-
-@media (min-width: 450px) {
-  .j-layout {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr;
-  }
-}
-
-.j-left {
-  display: flex;
-  flex-direction: column;
   gap: 8px;
-  min-height: 0;
-  overflow: hidden;
 }
 
-.j-right {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-height: 0;
-  overflow: hidden;
-}
-
-/* 输入区 textarea */
+/* 输入区 textarea — 填满剩余空间 */
 .j-textarea {
   width: 100%;
-  min-height: 60px;
   flex: 1;
+  min-height: 60px;
   background: var(--input-bg);
   border: 1px solid var(--input-border);
   border-radius: 6px;
@@ -58,7 +26,6 @@
 }
 
 .j-textarea:focus { border-color: var(--accent); }
-.j-textarea.error { border-color: var(--danger); }
 
 /* 按钮组 */
 .j-btn-group {
@@ -66,6 +33,7 @@
   gap: 4px;
   flex-wrap: wrap;
   align-items: center;
+  flex-shrink: 0;
 }
 
 /* 按钮组分隔符 */
@@ -77,35 +45,11 @@
   flex-shrink: 0;
 }
 
-/* 输出区域 */
-.j-output {
-  border: 1px solid var(--btn-border);
-  border-radius: 8px;
-  background: var(--output-bg);
-  padding: 10px 12px;
-  position: relative;
-  flex: 1;
-  overflow: auto;
-  min-height: 0;
-}
-
-.j-output-text {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: var(--text-primary);
-  white-space: pre-wrap;
-  word-break: break-all;
-  line-height: 1.5;
-  user-select: all;
-  overflow-x: auto;
-}
-
-.j-output-text { color: var(--text-primary); }
-
 /* 状态栏 */
 .j-status {
   font-size: 11px;
   color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .j-status.ok { color: var(--success); }
@@ -113,7 +57,6 @@
 
 /* 错误卡片 */
 .j-error-card {
-  margin-top: 8px;
   border: 1px solid var(--danger);
   border-radius: 8px;
   padding: 8px 12px;
@@ -122,104 +65,21 @@
   color: var(--danger);
   font-family: var(--font-mono);
   line-height: 1.5;
-}
-
-/* === 树形视图 — jv- 前缀 === */
-
-.jv-tree {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 1.7;
-}
-
-.jv-node {
-  display: flex;
-  align-items: flex-start;
-  cursor: pointer;
-  border-radius: 2px;
-  padding: 0 4px;
-  margin: 0 -4px;
-}
-
-.jv-node:hover {
-  background: var(--btn-bg-hover);
-}
-
-/* 折叠指示器 */
-.jv-toggle {
-  width: 14px;
   flex-shrink: 0;
-  color: var(--text-muted);
-  cursor: pointer;
-  user-select: none;
-  font-size: 10px;
-  line-height: 1.7;
 }
 
-.jv-toggle:hover {
-  color: var(--text-primary);
-}
-
-/* 折叠态占位 */
-.jv-collapsed {
-  color: var(--text-muted);
-  font-size: 12px;
-  cursor: pointer;
-  margin-left: 2px;
-}
-
-.jv-collapsed:hover {
-  color: var(--text-primary);
-}
-
-/* 值颜色 */
-.jv-value {
-  cursor: pointer;
-}
-
-.jv-value:hover {
-  text-decoration: underline;
-}
-
-.jv-value.jv-string {
-  color: #a5d6ff;
-}
-
-.jv-value.jv-number {
-  color: #ffa657;
-}
-
-.jv-value.jv-boolean {
-  color: #cda5ff;
-}
-
-.jv-value.jv-null {
-  color: #6e7681;
-  font-style: italic;
-}
-
-.jv-value.jv-object,
-.jv-value.jv-undefined {
-  color: var(--text-primary);
-}
-
-/* 分隔符 */
-.jv-sep {
-  color: var(--text-muted);
-  margin-left: 2px;
-}
-
-/* === JSONPath 区域 === */
-
+/* JSONPath 输入行 */
 .j-jsonpath-row {
   display: flex;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .j-jsonpath-row input {
   flex: 1;
 }
 
+/* JSONPath 结果卡片 */
 .j-jsonpath-result {
   border: 1px solid var(--btn-border);
   border-radius: 8px;
@@ -233,6 +93,7 @@
   line-height: 1.5;
   user-select: all;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .j-jsonpath-result:hover {
@@ -248,4 +109,5 @@
   border: 1px solid rgba(210, 153, 34, 0.3);
   border-radius: 4px;
   text-align: center;
+  flex-shrink: 0;
 }
