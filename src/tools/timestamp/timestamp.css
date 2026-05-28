@@ -1,0 +1,162 @@
+/* 时间戳工具面板 — 所有类名 ts- 前缀防泄漏 */
+.ts-container {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ts-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ts-header label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.ts-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.ts-divider {
+  border: none;
+  border-top: 1px solid var(--divider);
+  margin: 4px 0;
+}
+
+.ts-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-radius: 4px;
+  min-height: 32px;
+}
+
+.ts-row:hover {
+  background: var(--btn-bg-hover);
+}
+
+.ts-row-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  min-width: 80px;
+}
+
+.ts-row-value {
+  font-size: 13px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  flex: 1;
+  text-align: right;
+  margin-right: 8px;
+  user-select: all;
+  cursor: pointer;
+}
+
+.ts-row-value:hover {
+  color: var(--accent);
+}
+
+.ts-copy-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 100ms ease;
+  flex-shrink: 0;
+}
+
+.ts-copy-btn:hover {
+  background: var(--btn-bg-hover);
+  color: var(--text-primary);
+}
+
+.ts-copy-btn.copied {
+  color: var(--success);
+}
+
+.ts-input-area {
+  margin-top: 4px;
+}
+
+.ts-input-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.ts-input-row input {
+  flex: 1;
+}
+
+.ts-btn-group {
+  display: flex;
+  gap: 4px;
+}
+
+.ts-result-card {
+  margin-top: 8px;
+  border: 1px solid var(--btn-border);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--output-bg);
+}
+
+.ts-result-error {
+  font-size: 13px;
+  color: var(--danger);
+  padding: 8px;
+  text-align: center;
+}
+
+/* Toggle 开关 */
+.ts-toggle {
+  position: relative;
+  width: 32px;
+  height: 18px;
+  background: var(--text-muted);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 150ms;
+  border: none;
+  padding: 0;
+}
+
+.ts-toggle.active {
+  background: var(--accent);
+}
+
+.ts-toggle::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 150ms;
+}
+
+.ts-toggle.active::after {
+  transform: translateX(14px);
+}

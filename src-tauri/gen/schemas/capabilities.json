@@ -1,0 +1,1 @@
+{"default":{"identifier":"default","description":"Default capabilities for DeskPal","local":true,"windows":["main"],"permissions":["core:default","shell:allow-open","global-shortcut:default","clipboard-manager:default","clipboard-manager:allow-read-text","clipboard-manager:allow-write-text"]}}
