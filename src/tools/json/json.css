@@ -1,0 +1,80 @@
+/* JSON 工具面板 — j- 前缀防泄漏 */
+.j-container {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+/* 输入区 textarea */
+.j-textarea {
+  width: 100%;
+  min-height: 80px;
+  max-height: 200px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--input-text);
+  outline: none;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.j-textarea:focus { border-color: var(--accent); }
+.j-textarea.error { border-color: var(--danger); }
+
+/* 按钮组 */
+.j-btn-group {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+/* 输出区域 */
+.j-output {
+  border: 1px solid var(--btn-border);
+  border-radius: 8px;
+  background: var(--output-bg);
+  padding: 10px 12px;
+  position: relative;
+}
+
+.j-output-text {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-all;
+  line-height: 1.5;
+  user-select: all;
+  cursor: pointer;
+}
+
+.j-output-text:hover { color: var(--accent); }
+
+/* 状态栏 */
+.j-status {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.j-status.ok { color: var(--success); }
+.j-status.error { color: var(--danger); }
+
+/* 错误卡片 */
+.j-error-card {
+  margin-top: 8px;
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: rgba(248, 81, 73, 0.08);
+  font-size: 13px;
+  color: var(--danger);
+  font-family: var(--font-mono);
+  line-height: 1.5;
+}
