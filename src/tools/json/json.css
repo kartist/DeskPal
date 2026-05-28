@@ -95,6 +95,7 @@
   line-height: 1.5;
   user-select: all;
   cursor: pointer;
+  overflow-x: auto;
 }
 
 .j-output-text:hover { color: var(--accent); }
