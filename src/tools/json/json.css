@@ -32,6 +32,16 @@
   display: flex;
   gap: 4px;
   flex-wrap: wrap;
+  align-items: center;
+}
+
+/* 按钮组分隔符 */
+.j-btn-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--divider);
+  margin: 0 4px;
+  flex-shrink: 0;
 }
 
 /* 输出区域 */
@@ -77,4 +87,132 @@
   color: var(--danger);
   font-family: var(--font-mono);
   line-height: 1.5;
+}
+
+/* === 树形视图 — jv- 前缀 === */
+
+.jv-tree {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.jv-node {
+  display: flex;
+  align-items: flex-start;
+  cursor: pointer;
+  border-radius: 2px;
+  padding: 0 4px;
+  margin: 0 -4px;
+}
+
+.jv-node:hover {
+  background: var(--btn-bg-hover);
+}
+
+/* 折叠指示器 */
+.jv-toggle {
+  width: 14px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+.jv-toggle:hover {
+  color: var(--text-primary);
+}
+
+/* 折叠态占位 */
+.jv-collapsed {
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  margin-left: 2px;
+}
+
+.jv-collapsed:hover {
+  color: var(--text-primary);
+}
+
+/* 值颜色 */
+.jv-value {
+  cursor: pointer;
+}
+
+.jv-value:hover {
+  text-decoration: underline;
+}
+
+.jv-value.jv-string {
+  color: #a5d6ff;
+}
+
+.jv-value.jv-number {
+  color: #ffa657;
+}
+
+.jv-value.jv-boolean {
+  color: #cda5ff;
+}
+
+.jv-value.jv-null {
+  color: #6e7681;
+  font-style: italic;
+}
+
+.jv-value.jv-object,
+.jv-value.jv-undefined {
+  color: var(--text-primary);
+}
+
+/* 分隔符 */
+.jv-sep {
+  color: var(--text-muted);
+  margin-left: 2px;
+}
+
+/* === JSONPath 区域 === */
+
+.j-jsonpath-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.j-jsonpath-row input {
+  flex: 1;
+}
+
+.j-jsonpath-result {
+  margin-top: 8px;
+  border: 1px solid var(--btn-border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: var(--output-bg);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-all;
+  line-height: 1.5;
+  user-select: all;
+  cursor: pointer;
+}
+
+.j-jsonpath-result:hover {
+  color: var(--accent);
+}
+
+/* 大型 JSON 提示条 */
+.j-warning-banner {
+  font-size: 11px;
+  color: var(--warning);
+  padding: 4px 8px;
+  background: rgba(210, 153, 34, 0.1);
+  border: 1px solid rgba(210, 153, 34, 0.3);
+  border-radius: 4px;
+  text-align: center;
 }

@@ -347,6 +347,7 @@ html, body, #root {
 }
 
 .action-btn:hover { background: var(--btn-bg-hover); border-color: var(--accent); }
+.action-btn.active { background: var(--btn-bg-active); border-color: var(--accent); color: var(--accent); }
 .action-btn:active { transform: scale(0.97); }
 
 ::-webkit-scrollbar { width: 6px; }

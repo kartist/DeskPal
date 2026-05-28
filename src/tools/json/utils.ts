@@ -52,3 +52,85 @@ export function processJson(input: string): JsonResult {
     };
   }
 }
+
+/** 添加转义：普通字符串 → JSON 转义字符串（含外层引号） */
+export function escapeJson(str: string): string {
+  return JSON.stringify(str);
+}
+
+/** 移除转义：JSON 转义字符串 → 原始字符串 */
+export function unescapeJson(str: string): string {
+  if (!str) return str;
+  try {
+    return JSON.parse(str);
+  } catch {
+    // 尝试包裹引号后解析
+    try { return JSON.parse(`"${str.replace(/^"|"$/g, '')}"`); }
+    catch { return str; }
+  }
+}
+
+/** 递归排序对象键 */
+export function sortKeys(obj: unknown): unknown {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(sortKeys);
+  const sorted: Record<string, unknown> = {};
+  Object.keys(obj)
+    .sort()
+    .forEach((k) => {
+      sorted[k] = sortKeys((obj as Record<string, unknown>)[k]);
+    });
+  return sorted;
+}
+
+/** 简单 JSONPath 查询（支持 $.a.b、$.a[0].b、$.a[0] 语法） */
+export function jsonpathQuery(
+  obj: unknown,
+  path: string
+): { found: boolean; value: unknown; error?: string } {
+  if (!path.startsWith("$"))
+    return { found: false, value: null, error: "JSONPath 必须以 $ 开头" };
+  const expr = path.slice(1); // 去掉 $
+  if (!expr) return { found: true, value: obj };
+  
+  // 分割路径：$.a.b[0].c → ["a", "b", "[0]", "c"]
+  const parts: string[] = [];
+  let current = "";
+  for (let i = 0; i < expr.length; i++) {
+    if (expr[i] === ".") {
+      if (current) { parts.push(current); current = ""; }
+    } else if (expr[i] === "[") {
+      if (current) { parts.push(current); current = ""; }
+      let j = i + 1;
+      while (j < expr.length && expr[j] !== "]") j++;
+      parts.push(expr.substring(i, j + 1));
+      i = j;
+    } else {
+      current += expr[i];
+    }
+  }
+  if (current) parts.push(current);
+
+  let result: unknown = obj;
+  for (const part of parts) {
+    if (!part) continue;
+    if (part.startsWith("[")) {
+      const idx = parseInt(part.slice(1, -1), 10);
+      if (Array.isArray(result) && !isNaN(idx)) {
+        result = result[idx];
+      } else {
+        return { found: false, value: null, error: `无法访问 ${part}` };
+      }
+    } else {
+      if (result && typeof result === "object" && !Array.isArray(result)) {
+        result = (result as Record<string, unknown>)[part];
+      } else {
+        return { found: false, value: null, error: `键 '${part}' 不存在` };
+      }
+    }
+    if (result === undefined) {
+      return { found: false, value: null, error: `路径 ${part} 的值是 undefined` };
+    }
+  }
+  return { found: true, value: result };
+}

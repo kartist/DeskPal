@@ -1,6 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Copy, Check } from "lucide-react";
-import { processJson } from "./utils";
+import { processJson, sortKeys, escapeJson, unescapeJson, jsonpathQuery } from "./utils";
+import JsonTreeView from "./JsonTreeView";
+import type { JsonTreeViewHandle } from "./JsonTreeView";
 import type { JsonResult } from "./utils";
 import { useToast } from "../../store/toastStore";
 import "./json.css";
@@ -8,10 +10,16 @@ import "./json.css";
 export default function JsonTool() {
   const [input, setInput] = useState("");
   const [result, setResult] = useState<JsonResult | null>(null);
+  const [parsedObj, setParsedObj] = useState<unknown>(null);
   const [mode, setMode] = useState<"formatted" | "minified">("formatted");
+  const [viewMode, setViewMode] = useState<"tree" | "text">("tree");
   const [copied, setCopied] = useState(false);
+  const [jsonpath, setJsonpath] = useState("");
+  const [jsonpathResult, setJsonpathResult] = useState<string | null>(null);
 
-  // 挂载时读取剪贴板，自动填充有效 JSON
+  const treeRef = useRef<JsonTreeViewHandle>(null);
+
+  // 挂载时读剪贴板
   useEffect(() => {
     navigator.clipboard
       .readText()
@@ -21,20 +29,27 @@ export default function JsonTool() {
         if (parsed.valid) {
           setInput(text);
           setResult(parsed);
+          try { setParsedObj(JSON.parse(text)); } catch {}
         }
       })
       .catch(() => {});
   }, []);
 
-  // 输入变化时 300ms 防抖处理
+  // 输入防抖处理
   useEffect(() => {
     if (!input.trim()) {
       setResult(null);
+      setParsedObj(null);
       return;
     }
     const timer = setTimeout(() => {
       const parsed = processJson(input);
       setResult(parsed);
+      if (parsed.valid) {
+        try { setParsedObj(JSON.parse(input)); } catch { setParsedObj(null); }
+      } else {
+        setParsedObj(null);
+      }
     }, 300);
     return () => clearTimeout(timer);
   }, [input]);
@@ -44,6 +59,7 @@ export default function JsonTool() {
     const parsed = processJson(input);
     setResult(parsed);
     setMode("formatted");
+    setViewMode("text");
   }, [input]);
 
   const handleMinify = useCallback(() => {
@@ -51,11 +67,34 @@ export default function JsonTool() {
     const parsed = processJson(input);
     setResult(parsed);
     setMode("minified");
+    setViewMode("text");
+  }, [input]);
+
+  const handleSortKeys = useCallback(() => {
+    if (!input.trim()) return;
+    try {
+      const parsed = JSON.parse(input);
+      const sorted = sortKeys(parsed);
+      const formatted = JSON.stringify(sorted, null, 2);
+      setInput(formatted);
+    } catch {}
+  }, [input]);
+
+  const handleEscape = useCallback(() => {
+    setInput(escapeJson(input));
+  }, [input]);
+
+  const handleUnescape = useCallback(() => {
+    const result = unescapeJson(input);
+    if (result !== input) setInput(result);
   }, [input]);
 
   const handleClear = useCallback(() => {
     setInput("");
     setResult(null);
+    setParsedObj(null);
+    setJsonpath("");
+    setJsonpathResult(null);
   }, []);
 
   const handleCopy = useCallback(async () => {
@@ -65,12 +104,8 @@ export default function JsonTool() {
       await navigator.clipboard.writeText(text);
       useToast.getState().show("已复制");
       setCopied(true);
-      setTimeout(() => {
-        setCopied(false);
-      }, 800);
-    } catch {
-      // 静默失败
-    }
+      setTimeout(() => setCopied(false), 800);
+    } catch {}
   }, [result, mode]);
 
   const handleInputChange = useCallback(
@@ -79,6 +114,27 @@ export default function JsonTool() {
     },
     []
   );
+
+  const handleJsonpathChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setJsonpath(e.target.value);
+    },
+    []
+  );
+
+  const handleJsonpathExtract = useCallback(() => {
+    if (!jsonpath.trim() || parsedObj === null) return;
+    const res = jsonpathQuery(parsedObj, jsonpath.trim());
+    if (res.found) {
+      const text =
+        typeof res.value === "string"
+          ? res.value
+          : JSON.stringify(res.value, null, 2);
+      setJsonpathResult(text);
+    } else {
+      setJsonpathResult(`错误: ${res.error}`);
+    }
+  }, [jsonpath, parsedObj]);
 
   return (
     <div className="tool-panel j-container">
@@ -91,6 +147,13 @@ export default function JsonTool() {
         rows={8}
       />
 
+      {/* 大 JSON 提示 */}
+      {result?.valid && result.formatted.length > 1_000_000 && (
+        <div className="j-warning-banner">
+          大型 JSON（{result.formatted.length} 字符），建议使用文本模式
+        </div>
+      )}
+
       {/* 按钮组 */}
       <div className="j-btn-group">
         <button className="action-btn" onClick={handleFormat} type="button">
@@ -99,6 +162,46 @@ export default function JsonTool() {
         <button className="action-btn" onClick={handleMinify} type="button">
           压缩
         </button>
+        <button className="action-btn" onClick={handleSortKeys} type="button">
+          键排序
+        </button>
+        <button className="action-btn" onClick={handleEscape} type="button">
+          转义
+        </button>
+        <button className="action-btn" onClick={handleUnescape} type="button">
+          反转义
+        </button>
+        <span className="j-btn-sep" />
+        <button
+          className={`action-btn ${viewMode === "tree" ? "active" : ""}`}
+          onClick={() => setViewMode("tree")}
+          type="button"
+        >
+          🌲树
+        </button>
+        <button
+          className={`action-btn ${viewMode === "text" ? "active" : ""}`}
+          onClick={() => setViewMode("text")}
+          type="button"
+        >
+          📄文本
+        </button>
+        <span className="j-btn-sep" />
+        <button
+          className="action-btn"
+          onClick={() => treeRef.current?.expandAll()}
+          type="button"
+        >
+          全部展开
+        </button>
+        <button
+          className="action-btn"
+          onClick={() => treeRef.current?.collapseAll()}
+          type="button"
+        >
+          全部收起
+        </button>
+        <span className="j-btn-sep" />
         <button className="action-btn" onClick={handleClear} type="button">
           ↻ 清空
         </button>
@@ -109,8 +212,19 @@ export default function JsonTool() {
         <div className="j-error-card">{result.error}</div>
       )}
 
-      {/* 输出区域 */}
-      {result && result.valid && (
+      {/* 树形视图输出 */}
+      {result?.valid && viewMode === "tree" && parsedObj !== null && (
+        <div className="j-output">
+          <JsonTreeView
+            ref={treeRef}
+            data={parsedObj}
+            defaultExpandedDepth={2}
+          />
+        </div>
+      )}
+
+      {/* 文本视图输出 */}
+      {result?.valid && viewMode === "text" && (
         <div className="j-output">
           <pre className="j-output-text" onClick={handleCopy}>
             {mode === "formatted" ? result.formatted : result.minified}
@@ -126,6 +240,40 @@ export default function JsonTool() {
               {copied ? <Check size={14} /> : <Copy size={14} />}
             </button>
           </div>
+        </div>
+      )}
+
+      {/* JSONPath 区域 */}
+      {result?.valid && (
+        <div className="j-jsonpath-row">
+          <input
+            className="tool-input"
+            type="text"
+            placeholder="$.store.book[0].title"
+            value={jsonpath}
+            onChange={handleJsonpathChange}
+            onKeyDown={(e) => e.key === "Enter" && handleJsonpathExtract()}
+          />
+          <button
+            className="action-btn"
+            onClick={handleJsonpathExtract}
+            type="button"
+          >
+            提取
+          </button>
+        </div>
+      )}
+      {jsonpathResult !== null && (
+        <div
+          className="j-jsonpath-result"
+          onClick={() => {
+            navigator.clipboard
+              .writeText(jsonpathResult)
+              .then(() => useToast.getState().show("已复制"))
+              .catch(() => {});
+          }}
+        >
+          {jsonpathResult}
         </div>
       )}
 
