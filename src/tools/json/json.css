@@ -1,10 +1,39 @@
 /* JSON 工具面板 — j- 前缀防泄漏 */
 .j-container {
   padding: 12px;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 响应式双栏布局 */
+.j-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  flex: 1;
+  overflow: hidden;
+}
+
+@media (min-width: 450px) {
+  .j-layout {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.j-left {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  flex: 1;
+  overflow: hidden;
+}
+
+.j-right {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
 }
 
 /* 输入区 textarea */
@@ -51,6 +80,8 @@
   background: var(--output-bg);
   padding: 10px 12px;
   position: relative;
+  flex: 1;
+  overflow: auto;
 }
 
 .j-output-text {
@@ -70,7 +101,6 @@
 .j-status {
   font-size: 11px;
   color: var(--text-muted);
-  margin-top: 4px;
 }
 
 .j-status.ok { color: var(--success); }
@@ -179,7 +209,6 @@
 .j-jsonpath-row {
   display: flex;
   gap: 6px;
-  margin-top: 8px;
 }
 
 .j-jsonpath-row input {
@@ -187,7 +216,6 @@
 }
 
 .j-jsonpath-result {
-  margin-top: 8px;
   border: 1px solid var(--btn-border);
   border-radius: 8px;
   padding: 8px 12px;

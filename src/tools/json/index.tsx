@@ -145,150 +145,159 @@ export default function JsonTool() {
 
   return (
     <div className="tool-panel j-container">
-      {/* 输入区 */}
-      <textarea
-        className="j-textarea"
-        placeholder="粘贴 JSON 文本…"
-        value={input}
-        onChange={handleInputChange}
-        rows={8}
-      />
-
-      {/* 大 JSON 提示 */}
-      {result?.valid && result.formatted.length > 1_000_000 && (
-        <div className="j-warning-banner">
-          大型 JSON（{result.formatted.length} 字符），建议使用文本模式
-        </div>
-      )}
-
-      {/* 按钮组 */}
-      <div className="j-btn-group">
-        <button className="action-btn" onClick={handleFormat} type="button">
-          格式化
-        </button>
-        <button className="action-btn" onClick={handleMinify} type="button">
-          压缩
-        </button>
-        <button className="action-btn" onClick={handleSortKeys} type="button">
-          键排序
-        </button>
-        <button className="action-btn" onClick={handleEscape} type="button">
-          转义
-        </button>
-        <button className="action-btn" onClick={handleUnescape} type="button">
-          反转义
-        </button>
-        <span className="j-btn-sep" />
-        <button
-          className={`action-btn ${viewMode === "tree" ? "active" : ""}`}
-          onClick={() => setViewMode("tree")}
-          type="button"
-        >
-          🌲树
-        </button>
-        <button
-          className={`action-btn ${viewMode === "text" ? "active" : ""}`}
-          onClick={() => setViewMode("text")}
-          type="button"
-        >
-          📄文本
-        </button>
-        <span className="j-btn-sep" />
-        <button
-          className="action-btn"
-          onClick={() => treeRef.current?.expandAll()}
-          type="button"
-        >
-          全部展开
-        </button>
-        <button
-          className="action-btn"
-          onClick={() => treeRef.current?.collapseAll()}
-          type="button"
-        >
-          全部收起
-        </button>
-        <span className="j-btn-sep" />
-        <button className="action-btn" onClick={handleClear} type="button">
-          ↻ 清空
-        </button>
-      </div>
-
-      {/* 错误信息 */}
-      {result && !result.valid && (
-        <div className="j-error-card">{result.error}</div>
-      )}
-
-      {/* 树形视图输出 */}
-      {result?.valid && viewMode === "tree" && parsedObj !== null && (
-        <div className="j-output">
-          <JsonTreeView
-            ref={treeRef}
-            data={parsedObj}
-            defaultExpandedDepth={2}
+      <div className="j-layout">
+        {/* 左栏 — 输入区 */}
+        <div className="j-left">
+          <textarea
+            className="j-textarea"
+            placeholder="粘贴 JSON 文本…"
+            value={input}
+            onChange={handleInputChange}
+            rows={8}
           />
-        </div>
-      )}
 
-      {/* 文本视图输出 */}
-      {result?.valid && viewMode === "text" && (
-        <div className="j-output">
-          <pre className="j-output-text" onClick={handleCopy}>
-            {mode === "formatted" ? result.formatted : result.minified}
-          </pre>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginTop: 4,
-            }}
-          >
-            <button className="copy-btn" onClick={handleCopy} type="button">
-              {copied ? <Check size={14} /> : <Copy size={14} />}
+          {/* 大 JSON 提示 */}
+          {result?.valid && result.formatted.length > 1_000_000 && (
+            <div className="j-warning-banner">
+              大型 JSON（{result.formatted.length} 字符），建议使用文本模式
+            </div>
+          )}
+
+          {/* 按钮组 */}
+          <div className="j-btn-group">
+            <button className="action-btn" onClick={handleFormat} type="button">
+              格式化
+            </button>
+            <button className="action-btn" onClick={handleMinify} type="button">
+              压缩
+            </button>
+            <button className="action-btn" onClick={handleSortKeys} type="button">
+              键排序
+            </button>
+            <button className="action-btn" onClick={handleEscape} type="button">
+              转义
+            </button>
+            <button className="action-btn" onClick={handleUnescape} type="button">
+              反转义
+            </button>
+            <span className="j-btn-sep" />
+            <button
+              className={`action-btn ${viewMode === "tree" ? "active" : ""}`}
+              onClick={() => setViewMode("tree")}
+              type="button"
+            >
+              🌲树
+            </button>
+            <button
+              className={`action-btn ${viewMode === "text" ? "active" : ""}`}
+              onClick={() => setViewMode("text")}
+              type="button"
+            >
+              📄文本
+            </button>
+            <span className="j-btn-sep" />
+            <button
+              className="action-btn"
+              onClick={() => treeRef.current?.expandAll()}
+              type="button"
+            >
+              全部展开
+            </button>
+            <button
+              className="action-btn"
+              onClick={() => treeRef.current?.collapseAll()}
+              type="button"
+            >
+              全部收起
+            </button>
+            <span className="j-btn-sep" />
+            <button className="action-btn" onClick={handleClear} type="button">
+              ↻ 清空
             </button>
           </div>
-        </div>
-      )}
 
-      {/* JSONPath 区域 */}
-      {result?.valid && (
-        <div className="j-jsonpath-row">
-          <input
-            className="tool-input"
-            type="text"
-            placeholder="$.store.book[0].title"
-            value={jsonpath}
-            onChange={handleJsonpathChange}
-          />
-        </div>
-      )}
-      {jsonpathResult !== null && (
-        <div
-          className="j-jsonpath-result"
-          onClick={() => {
-            navigator.clipboard
-              .writeText(jsonpathResult)
-              .then(() => useToast.getState().show("已复制"))
-              .catch(() => {});
-          }}
-        >
-          {jsonpathResult}
-        </div>
-      )}
+          {/* JSONPath 输入 */}
+          {result?.valid && (
+            <div className="j-jsonpath-row">
+              <input
+                className="tool-input"
+                type="text"
+                placeholder="$.store.book[0].title"
+                value={jsonpath}
+                onChange={handleJsonpathChange}
+              />
+            </div>
+          )}
 
-      {/* 状态栏 */}
-      {result && result.valid && (
-        <div className="j-status ok">
-          ✓ JSON 格式正确 ({result.parseTime}ms) |{" "}
-          {result.formatted.split("\n").length} 行 {result.formatted.length}{" "}
-          字符
+          {/* JSONPath 结果 */}
+          {jsonpathResult !== null && (
+            <div
+              className="j-jsonpath-result"
+              onClick={() => {
+                navigator.clipboard
+                  .writeText(jsonpathResult)
+                  .then(() => useToast.getState().show("已复制"))
+                  .catch(() => {});
+              }}
+            >
+              {jsonpathResult}
+            </div>
+          )}
         </div>
-      )}
-      {result && !result.valid && result.line && (
-        <div className="j-status error">
-          ✗ 第 {result.line} 行 第 {result.col} 列
+
+        {/* 右栏 — 输出区 */}
+        <div className="j-right">
+          {/* 错误信息 */}
+          {result && !result.valid && (
+            <div className="j-error-card">{result.error}</div>
+          )}
+
+          {/* 树形视图输出 */}
+          {result?.valid && viewMode === "tree" && parsedObj !== null && (
+            <div className="j-output">
+              <JsonTreeView
+                ref={treeRef}
+                data={parsedObj}
+                defaultExpandedDepth={2}
+              />
+            </div>
+          )}
+
+          {/* 文本视图输出 */}
+          {result?.valid && viewMode === "text" && (
+            <div className="j-output">
+              <pre className="j-output-text" onClick={handleCopy}>
+                {mode === "formatted" ? result.formatted : result.minified}
+              </pre>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginTop: 4,
+                }}
+              >
+                <button className="copy-btn" onClick={handleCopy} type="button">
+                  {copied ? <Check size={14} /> : <Copy size={14} />}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* 状态栏 */}
+          {result && result.valid && (
+            <div className="j-status ok">
+              ✓ JSON 格式正确 ({result.parseTime}ms) |{" "}
+              {result.formatted.split("\n").length} 行 {result.formatted.length}{" "}
+              字符
+            </div>
+          )}
+          {result && !result.valid && result.line && (
+            <div className="j-status error">
+              ✗ 第 {result.line} 行 第 {result.col} 列
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
