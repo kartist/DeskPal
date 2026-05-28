@@ -37,6 +37,11 @@ export interface AppState {
   setTheme: (theme: "dark" | "light") => void;
   pinned: boolean;
   setPinned: (pinned: boolean) => void;
+  /** JSON 工具缓存 */
+  jsonInput: string;
+  setJsonInput: (text: string) => void;
+  jsonpathInput: string;
+  setJsonpathInput: (text: string) => void;
 }
 
 export const useStore = create<AppState>((set) => ({
@@ -52,4 +57,8 @@ export const useStore = create<AppState>((set) => ({
   setTheme: (theme) => set({ resolvedTheme: theme }),
   pinned: false,
   setPinned: (pinned) => set({ pinned }),
+  jsonInput: "",
+  setJsonInput: (text) => set({ jsonInput: text }),
+  jsonpathInput: "",
+  setJsonpathInput: (text) => set({ jsonpathInput: text }),
 }));
