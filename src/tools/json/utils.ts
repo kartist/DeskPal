@@ -61,12 +61,33 @@ export function escapeJson(str: string): string {
 /** 移除转义：JSON 转义字符串 → 原始字符串 */
 export function unescapeJson(str: string): string {
   if (!str) return str;
+  const trimmed = str.trim();
+
+  // 如果已经是有效 JSON（对象/数组），说明无需转义
+  if (
+    (trimmed.startsWith("{") || trimmed.startsWith("[")) &&
+    trimmed.endsWith(trimmed.startsWith("{") ? "}" : "]")
+  ) {
+    try {
+      JSON.parse(trimmed);
+      return trimmed; // 已是非转义 JSON，直接返回
+    } catch {
+      // 不是有效 JSON，继续尝试反转义
+    }
+  }
+
+  // 尝试作为 JSON 字符串解析（处理 \" 等转义）
   try {
-    return JSON.parse(str);
+    const result = JSON.parse(trimmed);
+    return typeof result === "string" ? result : trimmed;
   } catch {
     // 尝试包裹引号后解析
-    try { return JSON.parse(`"${str.replace(/^"|"$/g, '')}"`); }
-    catch { return str; }
+    try {
+      const result = JSON.parse(`"${trimmed}"`);
+      return typeof result === "string" ? result : trimmed;
+    } catch {
+      return trimmed;
+    }
   }
 }
 

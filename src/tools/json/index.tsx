@@ -122,18 +122,25 @@ export default function JsonTool() {
     []
   );
 
-  const handleJsonpathExtract = useCallback(() => {
-    if (!jsonpath.trim() || parsedObj === null) return;
-    const res = jsonpathQuery(parsedObj, jsonpath.trim());
-    if (res.found) {
-      const text =
-        typeof res.value === "string"
-          ? res.value
-          : JSON.stringify(res.value, null, 2);
-      setJsonpathResult(text);
-    } else {
-      setJsonpathResult(`错误: ${res.error}`);
+  // JSONPath 输入防抖自动提取（300ms）
+  useEffect(() => {
+    if (!jsonpath.trim() || parsedObj === null) {
+      setJsonpathResult(null);
+      return;
     }
+    const timer = setTimeout(() => {
+      const res = jsonpathQuery(parsedObj, jsonpath.trim());
+      if (res.found) {
+        const text =
+          typeof res.value === "string"
+            ? res.value
+            : JSON.stringify(res.value, null, 2);
+        setJsonpathResult(text);
+      } else {
+        setJsonpathResult(`错误: ${res.error}`);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
   }, [jsonpath, parsedObj]);
 
   return (
@@ -252,15 +259,7 @@ export default function JsonTool() {
             placeholder="$.store.book[0].title"
             value={jsonpath}
             onChange={handleJsonpathChange}
-            onKeyDown={(e) => e.key === "Enter" && handleJsonpathExtract()}
           />
-          <button
-            className="action-btn"
-            onClick={handleJsonpathExtract}
-            type="button"
-          >
-            提取
-          </button>
         </div>
       )}
       {jsonpathResult !== null && (
