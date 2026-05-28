@@ -2,19 +2,19 @@
 .j-container {
   padding: 12px;
   flex: 1;
-  overflow: hidden;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
-/* 响应式双栏布局 */
+/* 响应式双栏布局 — 窄屏上下50%，宽屏左右100% */
 .j-layout {
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr 1fr;
   gap: 10px;
   flex: 1;
-  overflow: hidden;
+  min-height: 0;
 }
 
 @media (min-width: 450px) {
@@ -28,16 +28,16 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  overflow: hidden;
   min-height: 0;
+  overflow: hidden;
 }
 
 .j-right {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  overflow: hidden;
   min-height: 0;
+  overflow: hidden;
 }
 
 /* 输入区 textarea */
