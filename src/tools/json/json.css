@@ -1,4 +1,4 @@
-/* JSON 工具面板 — 单列布局，所有操作在输入框内原地完成 */
+/* JSON 工具面板 — 单列布局 */
 .j-container {
   padding: 12px;
   flex: 1;
@@ -8,11 +8,20 @@
   gap: 8px;
 }
 
-/* 输入区 textarea — 填满剩余空间 */
+/* 滚动区域 — textarea + 按钮 + JSONPath 作为一个整体随窗口变化 */
+.j-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 输入区 textarea */
 .j-textarea {
   width: 100%;
-  flex: 1;
-  min-height: 60px;
+  min-height: 120px;
   background: var(--input-bg);
   border: 1px solid var(--input-border);
   border-radius: 6px;

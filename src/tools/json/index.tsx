@@ -119,15 +119,74 @@ export default function JsonTool() {
 
   return (
     <div className="tool-panel j-container">
-      {/* 输入区 */}
-      <textarea
-        className="j-textarea"
-        placeholder="粘贴 JSON 文本…"
-        value={input}
-        onChange={handleInputChange}
-      />
+      {/* 滚动区 — 随窗口大小变化 */}
+      <div className="j-scroll">
+        {/* 输入区 */}
+        <textarea
+          className="j-textarea"
+          placeholder="粘贴 JSON 文本…"
+          value={input}
+          onChange={handleInputChange}
+        />
 
-      {/* 状态/错误信息 */}
+        {/* 大 JSON 提示 */}
+        {result?.valid && result.formatted.length > 1_000_000 && (
+          <div className="j-warning-banner">
+            大型 JSON（{result.formatted.length} 字符）
+          </div>
+        )}
+
+        {/* 按钮组 */}
+        <div className="j-btn-group">
+          <button className="action-btn" onClick={handleFormat} type="button">
+            格式化
+          </button>
+          <button className="action-btn" onClick={handleMinify} type="button">
+            压缩
+          </button>
+          <button className="action-btn" onClick={handleSortKeys} type="button">
+            键排序
+          </button>
+          <button className="action-btn" onClick={handleEscape} type="button">
+            转义
+          </button>
+          <button className="action-btn" onClick={handleUnescape} type="button">
+            反转义
+          </button>
+          <span className="j-btn-sep" />
+          <button className="action-btn" onClick={handleClear} type="button">
+            ↻ 清空
+          </button>
+        </div>
+
+        {/* JSONPath */}
+        {result?.valid && (
+          <div className="j-jsonpath-row">
+            <input
+              className="tool-input"
+              type="text"
+              placeholder="$.store.book[0].title"
+              value={jsonpath}
+              onChange={handleJsonpathChange}
+            />
+          </div>
+        )}
+        {jsonpathResult !== null && (
+          <div
+            className="j-jsonpath-result"
+            onClick={() => {
+              navigator.clipboard
+                .writeText(jsonpathResult)
+                .then(() => useToast.getState().show("已复制"))
+                .catch(() => {});
+            }}
+          >
+            {jsonpathResult}
+          </div>
+        )}
+      </div>
+
+      {/* 状态/错误 — 始终在底部可见 */}
       {result && result.valid && (
         <div className="j-status ok">
           ✓ JSON 格式正确 ({result.parseTime}ms) |{" "}
@@ -138,62 +197,6 @@ export default function JsonTool() {
         <div className="j-error-card">
           {result.error}
           {result.line && `（第 ${result.line} 行 第 ${result.col} 列）`}
-        </div>
-      )}
-
-      {/* 大 JSON 提示 */}
-      {result?.valid && result.formatted.length > 1_000_000 && (
-        <div className="j-warning-banner">
-          大型 JSON（{result.formatted.length} 字符）
-        </div>
-      )}
-
-      {/* 按钮组 */}
-      <div className="j-btn-group">
-        <button className="action-btn" onClick={handleFormat} type="button">
-          格式化
-        </button>
-        <button className="action-btn" onClick={handleMinify} type="button">
-          压缩
-        </button>
-        <button className="action-btn" onClick={handleSortKeys} type="button">
-          键排序
-        </button>
-        <button className="action-btn" onClick={handleEscape} type="button">
-          转义
-        </button>
-        <button className="action-btn" onClick={handleUnescape} type="button">
-          反转义
-        </button>
-        <span className="j-btn-sep" />
-        <button className="action-btn" onClick={handleClear} type="button">
-          ↻ 清空
-        </button>
-      </div>
-
-      {/* JSONPath */}
-      {result?.valid && (
-        <div className="j-jsonpath-row">
-          <input
-            className="tool-input"
-            type="text"
-            placeholder="$.store.book[0].title"
-            value={jsonpath}
-            onChange={handleJsonpathChange}
-          />
-        </div>
-      )}
-      {jsonpathResult !== null && (
-        <div
-          className="j-jsonpath-result"
-          onClick={() => {
-            navigator.clipboard
-              .writeText(jsonpathResult)
-              .then(() => useToast.getState().show("已复制"))
-              .catch(() => {});
-          }}
-        >
-          {jsonpathResult}
         </div>
       )}
     </div>
