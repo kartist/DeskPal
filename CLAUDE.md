@@ -8,6 +8,7 @@
 - `docs/ai-rules/01-config-system.md` — 配置体系规范（核心）
 - `docs/ai-rules/02-architecture.md` — 架构原则
 - `docs/ai-rules/03-git.md` — Git 提交规范
+- `docs/ai-rules/04-tools-development.md` — 工具模块开发规范
 
 ## 最强制规则
 **每次改动代码后，必须使用 git 提交，并维护有意义的 commit message。此规则优先级高于一切。**

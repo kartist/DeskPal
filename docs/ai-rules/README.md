@@ -16,3 +16,4 @@
 | `01-config-system.md` | 配置体系：Rust struct ↔ Schema ↔ IPC ↔ TS ↔ SettingsPanel 五层同步规范 | 所有配置相关任务 |
 | `02-architecture.md` | 架构原则：Rust/TS 边界、Trigger/Action 状态机、窗口生命周期 | 所有窗口/状态相关任务 |
 | `03-git.md` | Git 提交规范：提交频率、message 格式、类型前缀 | **所有任务。优先级高于一切规则** |
+| `04-tools-development.md` | 工具模块开发规范：注册点、组件模式、缓存、CSS 约定 | 所有新增/修改工具的任务 |
