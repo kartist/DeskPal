@@ -11,6 +11,7 @@
 .j-layout {
   display: grid;
   grid-template-columns: 1fr;
+  grid-template-rows: 1fr 1fr;
   gap: 10px;
   flex: 1;
   overflow: hidden;
@@ -19,6 +20,7 @@
 @media (min-width: 450px) {
   .j-layout {
     grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
   }
 }
 
