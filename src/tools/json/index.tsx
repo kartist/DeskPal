@@ -12,7 +12,7 @@ export default function JsonTool() {
   const [result, setResult] = useState<JsonResult | null>(null);
   const [parsedObj, setParsedObj] = useState<unknown>(null);
   const [mode, setMode] = useState<"formatted" | "minified">("formatted");
-  const [viewMode, setViewMode] = useState<"tree" | "text">("tree");
+  const [viewMode, setViewMode] = useState<"tree" | "text">("text");
   const [copied, setCopied] = useState(false);
   const [jsonpath, setJsonpath] = useState("");
   const [jsonpathResult, setJsonpathResult] = useState<string | null>(null);
@@ -46,7 +46,14 @@ export default function JsonTool() {
       const parsed = processJson(input);
       setResult(parsed);
       if (parsed.valid) {
-        try { setParsedObj(JSON.parse(input)); } catch { setParsedObj(null); }
+        try {
+          const obj = JSON.parse(input);
+          setParsedObj(obj);
+          // 长 JSON（>20行）自动切换为树形视图
+          if (parsed.formatted.split("\n").length > 20) {
+            setViewMode("tree");
+          }
+        } catch { setParsedObj(null); }
       } else {
         setParsedObj(null);
       }
@@ -266,7 +273,7 @@ export default function JsonTool() {
           {/* 文本视图输出 */}
           {result?.valid && viewMode === "text" && (
             <div className="j-output">
-              <pre className="j-output-text" onClick={handleCopy}>
+              <pre className="j-output-text">
                 {mode === "formatted" ? result.formatted : result.minified}
               </pre>
               <div

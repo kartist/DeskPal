@@ -84,6 +84,7 @@
   position: relative;
   flex: 1;
   overflow: auto;
+  min-height: 0;
 }
 
 .j-output-text {
@@ -94,11 +95,10 @@
   word-break: break-all;
   line-height: 1.5;
   user-select: all;
-  cursor: pointer;
   overflow-x: auto;
 }
 
-.j-output-text:hover { color: var(--accent); }
+.j-output-text { color: var(--text-primary); }
 
 /* 状态栏 */
 .j-status {
