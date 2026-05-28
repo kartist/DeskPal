@@ -6,35 +6,35 @@ import { useStore } from "../../store";
 import "./json.css";
 
 export default function JsonTool() {
-  // 从 zustand store 恢复缓存（跨工具切换持久化）
-  const cachedInput = useStore((s) => s.jsonInput);
-  const cachedJsonpath = useStore((s) => s.jsonpathInput);
   const setJsonInput = useStore((s) => s.setJsonInput);
   const setJsonpathInput = useStore((s) => s.setJsonpathInput);
 
-  const [input, setInput] = useState(cachedInput);
-  const [result, setResult] = useState<JsonResult | null>(() => {
-    if (cachedInput.trim()) return processJson(cachedInput);
-    return null;
-  });
-  const [jsonpath, setJsonpath] = useState(cachedJsonpath);
+  const [input, setInput] = useState("");
+  const [result, setResult] = useState<JsonResult | null>(null);
+  const [jsonpath, setJsonpath] = useState("");
   const [jsonpathResult, setJsonpathResult] = useState<string | null>(null);
   const resultRef = useRef<HTMLTextAreaElement>(null);
-  const mounted = useRef(false);
+  const inited = useRef(false);
 
   const hasJsonpath = jsonpath.trim().length > 0;
 
-  // 挂载时：有缓存直接用，无缓存才尝试剪贴板
+  // 挂载时从 store 恢复缓存；仅输入框为空时才尝试剪贴板
   useEffect(() => {
-    if (mounted.current) return;
-    mounted.current = true;
+    if (inited.current) return;
+    inited.current = true;
 
-    if (cachedInput.trim()) {
-      // 缓存已有内容，不读剪贴板
+    const storedInput = useStore.getState().jsonInput;
+    const storedJsonpath = useStore.getState().jsonpathInput;
+
+    if (storedInput.trim()) {
+      // 有缓存 → 恢复
+      setInput(storedInput);
+      setResult(processJson(storedInput));
+      if (storedJsonpath.trim()) setJsonpath(storedJsonpath);
       return;
     }
 
-    // 输入框为空时才读剪贴板
+    // 无缓存 → 读剪贴板（有效 JSON 才填充）
     navigator.clipboard
       .readText()
       .then((text) => {
@@ -46,25 +46,7 @@ export default function JsonTool() {
         }
       })
       .catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // 输入变更 → 同步缓存到 store
-  const syncInput = useCallback(
-    (value: string) => {
-      setInput(value);
-      setJsonInput(value);
-    },
-    [setJsonInput]
-  );
-
-  const syncJsonpath = useCallback(
-    (value: string) => {
-      setJsonpath(value);
-      setJsonpathInput(value);
-    },
-    [setJsonpathInput]
-  );
 
   // 输入防抖校验
   useEffect(() => {
@@ -77,6 +59,16 @@ export default function JsonTool() {
     }, 300);
     return () => clearTimeout(timer);
   }, [input]);
+
+  // 输入变更 → 同步到 store 缓存
+  useEffect(() => {
+    setJsonInput(input);
+  }, [input, setJsonInput]);
+
+  // JSONPath 变更 → 同步到 store 缓存
+  useEffect(() => {
+    setJsonpathInput(jsonpath);
+  }, [jsonpath, setJsonpathInput]);
 
   // JSONPath 防抖查询
   useEffect(() => {
@@ -113,58 +105,55 @@ export default function JsonTool() {
       .catch(() => {});
   }, [jsonpathResult]);
 
-  // 所有按钮直接操作 input
   const handleFormat = useCallback(() => {
     if (!input.trim()) return;
     try {
-      const parsed = JSON.parse(input);
-      syncInput(JSON.stringify(parsed, null, 2));
+      setInput(JSON.stringify(JSON.parse(input), null, 2));
     } catch {}
-  }, [input, syncInput]);
+  }, [input]);
 
   const handleMinify = useCallback(() => {
     if (!input.trim()) return;
     try {
-      const parsed = JSON.parse(input);
-      syncInput(JSON.stringify(parsed));
+      setInput(JSON.stringify(JSON.parse(input)));
     } catch {}
-  }, [input, syncInput]);
+  }, [input]);
 
   const handleSortKeys = useCallback(() => {
     if (!input.trim()) return;
     try {
-      syncInput(JSON.stringify(sortKeys(JSON.parse(input)), null, 2));
+      setInput(JSON.stringify(sortKeys(JSON.parse(input)), null, 2));
     } catch {}
-  }, [input, syncInput]);
+  }, [input]);
 
   const handleEscape = useCallback(() => {
-    syncInput(escapeJson(input));
-  }, [input, syncInput]);
+    setInput(escapeJson(input));
+  }, [input]);
 
   const handleUnescape = useCallback(() => {
     const r = unescapeJson(input);
-    if (r !== input) syncInput(r);
-  }, [input, syncInput]);
+    if (r !== input) setInput(r);
+  }, [input]);
 
   const handleClear = useCallback(() => {
-    syncInput("");
+    setInput("");
     setResult(null);
-    syncJsonpath("");
+    setJsonpath("");
     setJsonpathResult(null);
-  }, [syncInput, syncJsonpath]);
+  }, []);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      syncInput(e.target.value);
+      setInput(e.target.value);
     },
-    [syncInput]
+    []
   );
 
   const handleJsonpathChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      syncJsonpath(e.target.value);
+      setJsonpath(e.target.value);
     },
-    [syncJsonpath]
+    []
   );
 
   return (
