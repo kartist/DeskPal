@@ -1,4 +1,4 @@
-import { ChevronLeft, Pin, PinOff, ArrowLeft } from 'lucide-react';
+import { ChevronRight, Pin, PinOff, ArrowLeft } from 'lucide-react';
 import { togglePanel } from '../lib/ipc';
 import { invoke } from '@tauri-apps/api/core';
 import { useStore } from '../store';
@@ -67,7 +67,7 @@ export default function TitleBar() {
             title="折叠"
             aria-label="折叠面板"
           >
-            <ChevronLeft size={14} />
+            <ChevronRight size={14} />
           </button>
         </div>
       </div>
@@ -92,7 +92,7 @@ export default function TitleBar() {
           title="折叠"
           aria-label="折叠面板"
         >
-          <ChevronLeft size={14} />
+          <ChevronRight size={14} />
         </button>
       </div>
     </div>
