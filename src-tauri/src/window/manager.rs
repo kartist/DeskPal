@@ -137,22 +137,32 @@ impl WindowManager {
 
     fn reposition_to_edge(&self) -> Result<(), Box<dyn std::error::Error>> {
         if let Some(monitor) = self.window.current_monitor()? {
+            let scale = monitor.scale_factor();
             let m = monitor.size();
             let p = monitor.position();
+
+            // 物理 → 逻辑坐标
+            let mw = m.width as f64 / scale;
+            let mh = m.height as f64 / scale;
+            let px = p.x as f64 / scale;
+            let py = p.y as f64 / scale;
+
             let w = match self.state {
                 WindowState::Dormant => self.current_dormant_width,
                 WindowState::Expanded => self.panel_width,
             };
             let h = self.get_panel_height();
-            let y = p.y as f64 + (m.height as f64 * self.vertical_pos) - (h / 2.0);
-            let y = y.max(p.y as f64).min((p.y + m.height as i32 - h as i32) as f64);
+            let y = py + (mh * self.vertical_pos) - (h / 2.0);
+            let y = y.max(py).min(py + mh - h);
+
             let x = match self.state {
-                WindowState::Dormant => (p.x + m.width as i32 - w as i32) as f64,
+                WindowState::Dormant => px + mw - w,
                 WindowState::Expanded => {
-                    let cx = p.x as f64 + (m.width as f64 * self.horizontal_pos) - (w / 2.0);
-                    cx.max(p.x as f64).min((p.x + m.width as i32 - w as i32) as f64)
+                    let cx = px + (mw * self.horizontal_pos) - (w / 2.0);
+                    cx.max(px).min(px + mw - w)
                 }
             };
+
             let _ = self.window.set_position(LogicalPosition::new(x, y));
         }
         Ok(())
