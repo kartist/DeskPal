@@ -1,4 +1,4 @@
-import { X, Pin, PinOff, ArrowLeft } from 'lucide-react';
+import { ChevronLeft, Pin, PinOff, ArrowLeft } from 'lucide-react';
 import { togglePanel } from '../lib/ipc';
 import { invoke } from '@tauri-apps/api/core';
 import { useStore } from '../store';
@@ -54,12 +54,20 @@ export default function TitleBar() {
         </div>
         <div className="titlebar-actions">
           <button
+            className={`titlebar-btn ${pinned ? 'active' : ''}`}
+            onClick={handlePinToggle}
+            title={pinned ? '取消固定' : '固定面板'}
+            aria-label={pinned ? '取消固定' : '固定面板'}
+          >
+            {pinned ? <Pin size={14} /> : <PinOff size={14} />}
+          </button>
+          <button
             className="titlebar-btn titlebar-close"
             onClick={handleClose}
-            title="关闭"
-            aria-label="关闭面板"
+            title="折叠"
+            aria-label="折叠面板"
           >
-            <X size={14} />
+            <ChevronLeft size={14} />
           </button>
         </div>
       </div>
@@ -81,10 +89,10 @@ export default function TitleBar() {
         <button
           className="titlebar-btn titlebar-close"
           onClick={handleClose}
-          title="关闭"
-          aria-label="关闭面板"
+          title="折叠"
+          aria-label="折叠面板"
         >
-          <X size={14} />
+          <ChevronLeft size={14} />
         </button>
       </div>
     </div>
