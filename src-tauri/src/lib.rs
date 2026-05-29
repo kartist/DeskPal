@@ -128,10 +128,13 @@ pub fn run() {
             window.on_window_event(move |event| {
                 match event {
                     WindowEvent::Resized(size) => {
-                        // Save height + width — position is saved by WindowManager::save_position
+                        // Read-modify-write: only update panel_height, preserve existing panel_width and position
                         let h = size.height.max(300).min(2000) as f64;
-                        let w = size.width.max(100).min(2000) as f64;
-                        let data = serde_json::json!({"panel_height": h, "panel_width": w});
+                        let mut data = std::fs::read_to_string(&sp)
+                            .ok()
+                            .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
+                            .unwrap_or(serde_json::json!({}));
+                        data["panel_height"] = serde_json::json!(h);
                         let _ = std::fs::create_dir_all(sp.parent().unwrap());
                         let _ = std::fs::write(&sp, serde_json::to_string_pretty(&data).unwrap_or_default());
                         // Cancel any pending blur (this is a resize, not real blur)
