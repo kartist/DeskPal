@@ -1,0 +1,5 @@
+.u-container { height: 100%; display: flex; flex-direction: column; padding: 12px; gap: 16px; }
+.u-section { flex-shrink: 0; }
+.u-section-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; display: block; }
+.u-row { display: flex; align-items: center; gap: 8px; }
+.u-value { flex: 1; padding: 8px 10px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 6px; font-family: var(--font-mono); font-size: 13px; color: var(--input-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
