@@ -13,8 +13,7 @@
 
 ## ✨ 功能
 
-- **时间戳工具** — Unix 秒/毫秒/纳秒 ↔ 日期，自动类型识别，实时刷新
-- **更多工具开发中** — JSON 格式化、JWT 解析、Base64、颜色转换等
+- **11 种开发工具** — 时间戳、JSON、文本处理、变量命名、文本比对、UUID、随机字符、URL 编解码、正则测试、JWT 解析、设置
 
 ## 插件化工具架构
 
@@ -27,7 +26,7 @@ src/tools/
 │   ├── index.tsx            # 主组件
 │   ├── utils.ts             # 核心逻辑
 │   └── timestamp.css        # 私有样式
-├── json/                    # （待实现）
+├── json/                    # JSON 工具
 │   └── index.tsx
 └── ...
 ```
@@ -102,10 +101,9 @@ deskpal/
 │   └── App.tsx         # 应用入口
 ├── src-tauri/          # Rust 后端
 │   └── src/
-│       ├── command/    # 命令执行
+│       ├── window/     # 窗口状态机（收缩/展开/隐藏）
 │       ├── config/     # 配置管理
-│       ├── detect/     # 内容检测引擎
-│       └── stats/      # 使用统计学习
+│       └── tray/       # 系统托盘
 └── .github/workflows/  # CI 配置
 ```
 
