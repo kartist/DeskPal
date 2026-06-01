@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, Suspense } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useStore } from "./store";
 import { togglePanel, triggerAutoHide, triggerHoverActivate } from "./lib/ipc";
 import { listenToEvents } from "./lib/events";
