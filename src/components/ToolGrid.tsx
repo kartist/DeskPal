@@ -2,7 +2,7 @@ import { useStore } from "../store";
 import { gridTools } from "../lib/registry";
 import {
   Clock, Braces, Type, Shield, Terminal, Lock, Palette,
-  FileText, Link,
+  FileText, Link, CaseSensitive,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -16,6 +16,7 @@ const iconMap: Record<string, LucideIcon> = {
   palette: Palette,
   "file-text": FileText,
   link: Link,
+  "case-sensitive": CaseSensitive,
 };
 
 export function ToolGrid() {

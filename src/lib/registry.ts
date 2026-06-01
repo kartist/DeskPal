@@ -10,6 +10,7 @@ export const toolRegistry: ToolPlugin[] = [
   { id: "color", name: "颜色", icon: "palette", keywords: ["color", "rgb", "hex"], order: 6 },
   { id: "template", name: "模板", icon: "file-text", keywords: ["template", "snippet"], order: 7 },
   { id: "url", name: "URL", icon: "link", keywords: ["url", "query"], order: 8 },
+  { id: "naming", name: "变量命名", icon: "case-sensitive", keywords: ["naming", "命名", "变量", "case"], order: 10 },
   { id: "settings", name: "设置", icon: "settings", keywords: ["config", "pref"], order: 9 },
 ];
 
