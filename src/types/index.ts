@@ -22,4 +22,5 @@ export interface DeskPalConfig {
   panel_height_max: number;
   smart_recommend: boolean;
   live_timestamp: boolean;
+  dblclick_threshold_ms: number;
 }

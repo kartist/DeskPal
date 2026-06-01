@@ -235,6 +235,23 @@ export function SettingsPanel() {
             onChange={(v) => updateField("live_timestamp", v)}
           />
         </SettingRow>
+
+        <SettingRow
+          label="双击判定时间 (ms)"
+          description={`${config.dblclick_threshold_ms}ms`}
+        >
+          <input
+            type="range"
+            min={100}
+            max={1000}
+            step={50}
+            value={config.dblclick_threshold_ms}
+            onChange={(e) =>
+              updateField("dblclick_threshold_ms", Number(e.target.value))
+            }
+            style={styles.slider}
+          />
+        </SettingRow>
       </div>
 
       <div style={styles.footer}>

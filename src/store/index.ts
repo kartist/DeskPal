@@ -11,6 +11,7 @@ export interface DeskPalConfig {
   smart_recommend: boolean;
   auto_fill_from_clipboard: boolean;
   live_timestamp: boolean;
+  dblclick_threshold_ms: number;
 }
 
 export const DEFAULT_CONFIG: DeskPalConfig = {
@@ -22,6 +23,7 @@ export const DEFAULT_CONFIG: DeskPalConfig = {
   smart_recommend: true,
   auto_fill_from_clipboard: true,
   live_timestamp: true,
+  dblclick_threshold_ms: 300,
 };
 
 export interface AppState {

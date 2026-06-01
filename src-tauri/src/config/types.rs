@@ -25,6 +25,8 @@ pub struct DeskPalConfig {
     pub live_timestamp: bool,
     #[serde(default = "default_hotkey")]
     pub hotkey: String,
+    #[serde(default = "default_dblclick_threshold_ms")]
+    pub dblclick_threshold_ms: u64,
 }
 
 // ---- Default values ----
@@ -73,6 +75,10 @@ fn default_live_timestamp() -> bool {
 fn default_hotkey() -> String {
     "Ctrl+Shift+D".to_string()
 }
+#[allow(dead_code)]
+fn default_dblclick_threshold_ms() -> u64 {
+    300
+}
 
 impl Default for DeskPalConfig {
     fn default() -> Self {
@@ -88,6 +94,7 @@ impl Default for DeskPalConfig {
             smart_recommend: default_smart_recommend(),
             live_timestamp: default_live_timestamp(),
             hotkey: default_hotkey(),
+            dblclick_threshold_ms: default_dblclick_threshold_ms(),
         }
     }
 }

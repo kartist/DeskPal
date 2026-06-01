@@ -108,5 +108,16 @@ pub fn get_fields() -> Vec<ConfigField> {
             field_type: ConfigFieldType::Toggle,
             default: 1.0,
         },
+        ConfigField {
+            key: "dblclick_threshold_ms",
+            label: "双击判定时间",
+            field_type: ConfigFieldType::Slider {
+                min: 100.0,
+                max: 1000.0,
+                step: 50.0,
+                unit: "ms",
+            },
+            default: 300.0,
+        },
     ]
 }

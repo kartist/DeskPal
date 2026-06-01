@@ -5,8 +5,6 @@ import { invoke } from '@tauri-apps/api/core';
 import { useStore } from '../store';
 import { toolRegistry } from '../lib/registry';
 
-const DBLCLICK_THRESHOLD = 300; // ms
-
 export default function TitleBar() {
   const pinned = useStore((s) => s.pinned);
   const setPinned = useStore((s) => s.setPinned);
@@ -58,7 +56,9 @@ export default function TitleBar() {
     if ((e.target as HTMLElement).closest('button')) return;
 
     const now = Date.now();
-    if (now - lastMouseUpRef.current < DBLCLICK_THRESHOLD) {
+    const cfg = useStore.getState().config;
+    const threshold = cfg?.dblclick_threshold_ms ?? 300;
+    if (now - lastMouseUpRef.current < threshold) {
       // 短时间内 mouseup → mousedown → 双击判定
       lastMouseUpRef.current = 0; // 防三次点击连环触发
       setPinned(!pinned);
