@@ -13,7 +13,7 @@
 
 ## ✨ 功能
 
-- **时间戳工具** — Unix 秒/毫秒 ↔ 日期，实时刷新，自动检测剪贴板
+- **时间戳工具** — Unix 秒/毫秒/纳秒 ↔ 日期，自动类型识别，实时刷新
 - **更多工具开发中** — JSON 格式化、JWT 解析、Base64、颜色转换等
 
 ## 插件化工具架构
@@ -108,6 +108,10 @@ deskpal/
 │       └── stats/      # 使用统计学习
 └── .github/workflows/  # CI 配置
 ```
+
+## 💡 致谢
+
+部分功能实现借鉴自 [ctool](https://github.com/baiy/ctool) (MIT License)，感谢原作者 baiy。
 
 ## 许可
 
