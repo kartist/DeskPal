@@ -10,5 +10,6 @@ export const toolComponents: Record<string, ToolComponent> = {
   text: lazy(() => import("./text")),
   naming: lazy(() => import("./naming")),
   diff: lazy(() => import("./diff")),
+  random: lazy(() => import("./random")),
   // 后续工具在这里加一行即可
 };
