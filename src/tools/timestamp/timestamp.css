@@ -160,3 +160,24 @@
 .ts-toggle.active::after {
   transform: translateX(14px);
 }
+
+/* 新组件需要的额外样式 */
+.ts-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ts-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 4px 8px;
+  margin-top: 4px;
+}
+
+.ts-error {
+  font-size: 13px;
+  color: var(--danger);
+  padding: 8px;
+  text-align: center;
+}
