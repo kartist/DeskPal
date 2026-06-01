@@ -10,6 +10,7 @@ export const toolComponents: Record<string, ToolComponent> = {
   text: lazy(() => import("./text")),
   naming: lazy(() => import("./naming")),
   diff: lazy(() => import("./diff")),
+  uuid: lazy(() => import("./uuid")),
   random: lazy(() => import("./random")),
   url: lazy(() => import("./url")),
   regex: lazy(() => import("./regex")),

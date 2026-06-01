@@ -1,7 +1,7 @@
 import { useStore } from "../store";
 import { gridTools } from "../lib/registry";
 import {
-  Clock, Braces, Type, CaseSensitive, FileDiff, Link2, Shield,
+  Clock, Braces, Type, CaseSensitive, FileDiff, Fingerprint, Shuffle, Link2, Code, Shield,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -11,7 +11,10 @@ const iconMap: Record<string, LucideIcon> = {
   type: Type,
   "case-sensitive": CaseSensitive,
   "file-diff": FileDiff,
+  fingerprint: Fingerprint,
+  shuffle: Shuffle,
   link: Link2,
+  code: Code,
   shield: Shield,
 };
 

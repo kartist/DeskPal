@@ -86,6 +86,11 @@ function App() {
             <div className="dock-icon" onClick={handleToggle} title="文本">📝</div>
             <div className="dock-icon" onClick={handleToggle} title="变量命名">Aa</div>
             <div className="dock-icon" onClick={handleToggle} title="文本比对">⇄</div>
+            <div className="dock-icon" onClick={handleToggle} title="UUID">🎲</div>
+            <div className="dock-icon" onClick={handleToggle} title="随机字符">🔀</div>
+            <div className="dock-icon" onClick={handleToggle} title="URL">🔗</div>
+            <div className="dock-icon" onClick={handleToggle} title="正则">.*</div>
+            <div className="dock-icon" onClick={handleToggle} title="JWT">🛡</div>
             <div className="dock-icon" onClick={() => { handleToggle(); useStore.getState().setActiveTool('settings'); }} title="设置">⚙️</div>
           </div>
         </div>
