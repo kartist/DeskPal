@@ -1,8 +1,11 @@
+import { useEffect, useRef } from 'react';
 import { ChevronRight, Pin, PinOff, ArrowLeft } from 'lucide-react';
 import { togglePanel } from '../lib/ipc';
 import { invoke } from '@tauri-apps/api/core';
 import { useStore } from '../store';
 import { toolRegistry } from '../lib/registry';
+
+const DBLCLICK_THRESHOLD = 300; // ms
 
 export default function TitleBar() {
   const pinned = useStore((s) => s.pinned);
@@ -11,6 +14,36 @@ export default function TitleBar() {
   const setActiveTool = useStore((s) => s.setActiveTool);
 
   const toolMeta = activeTool ? toolRegistry.find((t) => t.id === activeTool) : null;
+
+  // refs 追踪鼠标状态
+  const lastMouseUpRef = useRef(0);        // 最近一次 mouseup 的时间戳
+  const mouseDownRef = useRef(false);      // 鼠标是否按着
+  const dragStartedRef = useRef(false);    // 是否已调用 drag_window
+
+  // document 级 mouseup：保证无论鼠标在哪释放都能捕获到时间戳
+  useEffect(() => {
+    const onUp = () => {
+      mouseDownRef.current = false;
+      dragStartedRef.current = false;
+      lastMouseUpRef.current = Date.now();
+    };
+    document.addEventListener('mouseup', onUp);
+    return () => document.removeEventListener('mouseup', onUp);
+  }, []);
+
+  // document 级 mousemove：检测拖拽意图
+  useEffect(() => {
+    const onMove = () => {
+      if (mouseDownRef.current && !dragStartedRef.current) {
+        dragStartedRef.current = true;
+        invoke('drag_window').catch((err) =>
+          console.error('drag_window error:', err)
+        );
+      }
+    };
+    document.addEventListener('mousemove', onMove);
+    return () => document.removeEventListener('mousemove', onMove);
+  }, []);
 
   const handleClose = () => {
     togglePanel().catch(() => {});
@@ -23,7 +56,18 @@ export default function TitleBar() {
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0) return;
     if ((e.target as HTMLElement).closest('button')) return;
-    invoke('drag_window').catch((err) => console.error('drag_window error:', err));
+
+    const now = Date.now();
+    if (now - lastMouseUpRef.current < DBLCLICK_THRESHOLD) {
+      // 短时间内 mouseup → mousedown → 双击判定
+      lastMouseUpRef.current = 0; // 防三次点击连环触发
+      setPinned(!pinned);
+      return;
+    }
+
+    // 单击或拖拽起点：标记按下，等待 mousemove 或 mouseup
+    mouseDownRef.current = true;
+    dragStartedRef.current = false;
   };
 
   if (activeTool) {
