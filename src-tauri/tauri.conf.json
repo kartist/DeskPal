@@ -43,21 +43,7 @@
   },
   "plugins": {
     "shell": {
-      "open": true,
-      "scope": [
-        {
-          "name": "cmd",
-          "cmd": "cmd",
-          "args": [
-            { "validator": "\\S+" }
-          ]
-        },
-        {
-          "name": "powershell",
-          "cmd": "powershell",
-          "args": true
-        }
-      ]
+      "open": true
     }
   }
 }
