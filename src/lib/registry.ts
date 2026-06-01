@@ -11,6 +11,7 @@ export const toolRegistry: ToolPlugin[] = [
   { id: "template", name: "模板", icon: "file-text", keywords: ["template", "snippet"], order: 7 },
   { id: "url", name: "URL", icon: "link", keywords: ["url", "query"], order: 8 },
   { id: "naming", name: "变量命名", icon: "case-sensitive", keywords: ["naming", "命名", "变量", "case"], order: 10 },
+  { id: "diff", name: "文本比对", icon: "file-diff", keywords: ["diff", "比对", "比较", "差异"], order: 11 },
   { id: "settings", name: "设置", icon: "settings", keywords: ["config", "pref"], order: 9 },
 ];
 

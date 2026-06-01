@@ -1,0 +1,20 @@
+.d-container { height: 100%; display: flex; flex-direction: column; padding: 12px; gap: 8px; }
+
+.d-inputs { display: flex; gap: 8px; flex: 0 0 auto; height: 40%; }
+.d-textarea {
+  flex: 1; min-height: 0;
+  background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 6px;
+  padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; color: var(--input-text);
+  outline: none; resize: none; line-height: 1.5; overflow-y: auto;
+}
+.d-textarea:focus { border-color: var(--accent); }
+
+.d-output { flex: 1; min-height: 0; display: flex; flex-direction: column; border: 1px solid var(--input-border); border-radius: 6px; overflow: hidden; }
+.d-output-header { padding: 6px 10px; font-size: 11px; color: var(--text-muted); background: var(--titlebar-bg); border-bottom: 1px solid var(--divider); flex-shrink: 0; }
+.d-output-content { flex: 1; overflow-y: auto; padding: 4px 0; font-family: var(--font-mono); font-size: 13px; line-height: 1.5; }
+
+.d-line { padding: 1px 10px; white-space: pre-wrap; word-break: break-all; }
+.d-sign { display: inline-block; width: 16px; text-align: center; user-select: none; }
+.d-added { background: rgba(46, 160, 67, 0.15); color: var(--success); }
+.d-removed { background: rgba(248, 81, 73, 0.12); color: var(--danger); }
+.d-unchanged { color: var(--text-primary); }

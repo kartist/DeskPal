@@ -9,5 +9,6 @@ export const toolComponents: Record<string, ToolComponent> = {
   json: lazy(() => import("./json")),
   text: lazy(() => import("./text")),
   naming: lazy(() => import("./naming")),
+  diff: lazy(() => import("./diff")),
   // 后续工具在这里加一行即可
 };
