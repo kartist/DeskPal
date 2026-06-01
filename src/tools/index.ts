@@ -12,5 +12,6 @@ export const toolComponents: Record<string, ToolComponent> = {
   diff: lazy(() => import("./diff")),
   random: lazy(() => import("./random")),
   url: lazy(() => import("./url")),
+  regex: lazy(() => import("./regex")),
   // 后续工具在这里加一行即可
 };
