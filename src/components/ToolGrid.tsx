@@ -1,7 +1,7 @@
 import { useStore } from "../store";
 import { gridTools } from "../lib/registry";
 import {
-  Clock, Braces, Shield, Terminal, Lock, Palette,
+  Clock, Braces, Type, Shield, Terminal, Lock, Palette,
   FileText, Link,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -9,6 +9,7 @@ import type { LucideIcon } from "lucide-react";
 const iconMap: Record<string, LucideIcon> = {
   clock: Clock,
   braces: Braces,
+  type: Type,
   shield: Shield,
   terminal: Terminal,
   lock: Lock,

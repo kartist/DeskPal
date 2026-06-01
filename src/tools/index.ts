@@ -7,5 +7,6 @@ type ToolComponent = ComponentType<ToolProps>;
 export const toolComponents: Record<string, ToolComponent> = {
   timestamp: lazy(() => import("./timestamp")),
   json: lazy(() => import("./json")),
+  text: lazy(() => import("./text")),
   // 后续工具在这里加一行即可
 };

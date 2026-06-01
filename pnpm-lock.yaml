@@ -20,6 +20,9 @@ importers:
       '@tauri-apps/plugin-shell':
         specifier: ^2.0.0
         version: 2.3.5
+      chinese-simple2traditional:
+        specifier: ^2.2.0
+        version: 2.3.2
       lucide-react:
         specifier: ^1.0.0
         version: 1.16.0(react@18.3.1)
@@ -582,6 +585,9 @@ packages:
 
   caniuse-lite@1.0.30001793:
     resolution: {integrity: sha512-iwSsYWaCOoh26cV8NwNRViHlrfUvYsHDfRVcbtmw0Kg6PJIZZXwMkj1442FYLBGkeUf1juAsU3DTfxW579mrPA==}
+
+  chinese-simple2traditional@2.3.2:
+    resolution: {integrity: sha512-zgvXTpDelAOtM6GIqLLWTe3Ot2a3WrV1ZJvnXhz+Nz1flnMRaBi602UOg8u/elsHbIVIOgT2jRpa2TbnHaXdYg==}
 
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
@@ -1187,6 +1193,8 @@ snapshots:
       update-browserslist-db: 1.2.3(browserslist@4.28.2)
 
   caniuse-lite@1.0.30001793: {}
+
+  chinese-simple2traditional@2.3.2: {}
 
   convert-source-map@2.0.0: {}
 

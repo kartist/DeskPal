@@ -1,0 +1,79 @@
+/* 文本工具面板 — t- 前缀命名空间，遵循 DeskPal 工具 CSS 规范 */
+.t-container {
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+/* 主输入框 — 占满剩余空间，内部滚动 */
+.t-textarea {
+  width: 100%;
+  flex: 1;
+  min-height: 80px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--input-text);
+  outline: none;
+  resize: none;
+  line-height: 1.5;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  tab-size: 4;
+}
+.t-textarea:focus {
+  border-color: var(--accent);
+}
+
+/* 统计信息栏 — 固定底部，单行文本 */
+.t-status {
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 子分类标题 — 按钮分组标识 */
+.t-section {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  flex-shrink: 0;
+}
+
+/* 按钮组 — flex wrap 布局 */
+.t-btn-group {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* 按钮组之间的分隔 */
+.t-btn-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--divider);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+/* 清空按钮 — 独立一行，用 action-btn 类 */
+.t-clear-row {
+  display: flex;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
