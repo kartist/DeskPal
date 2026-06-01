@@ -81,14 +81,11 @@ function App() {
             <span className="dormant-bar-label">DESKPAL</span>
           </div>
           <div className="dock-bar-inline">
-            <div className="dock-icon" onClick={handleToggle} title="搜索">🔍</div>
             <div className="dock-icon" onClick={handleToggle} title="时间戳">⏰</div>
             <div className="dock-icon" onClick={handleToggle} title="JSON">{ }</div>
-            <div className="dock-icon" onClick={handleToggle} title="JWT">🔐</div>
-            <div className="dock-icon" onClick={handleToggle} title="命令">⚡</div>
-            <div className="dock-icon" onClick={handleToggle} title="颜色">🎨</div>
-            <div className="dock-icon" onClick={handleToggle} title="模板">📋</div>
-            <div className="dock-icon" onClick={handleToggle} title="URL">🔗</div>
+            <div className="dock-icon" onClick={handleToggle} title="文本">📝</div>
+            <div className="dock-icon" onClick={handleToggle} title="变量命名">Aa</div>
+            <div className="dock-icon" onClick={handleToggle} title="文本比对">⇄</div>
             <div className="dock-icon" onClick={() => { handleToggle(); useStore.getState().setActiveTool('settings'); }} title="设置">⚙️</div>
           </div>
         </div>
