@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { processJson, sortKeys, escapeJson, unescapeJson, jsonpathQuery } from "./utils";
-import type { JsonResult } from "./utils";
+import ctoolJson from "./utils";
+import { typeLists } from "../text/nameConvert";
+import type { TypeLists } from "../text/nameConvert";
 import { useToast } from "../../store/toastStore";
 import { useStore } from "../../store";
 import "./json.css";
@@ -10,9 +11,10 @@ export default function JsonTool() {
   const setJsonpathInput = useStore((s) => s.setJsonpathInput);
 
   const [input, setInput] = useState("");
-  const [result, setResult] = useState<JsonResult | null>(null);
+  const [result, setResult] = useState<{ valid: boolean; formatted: string; error?: string; line?: number; col?: number; parseTime?: number } | null>(null);
   const [jsonpath, setJsonpath] = useState("");
   const [jsonpathResult, setJsonpathResult] = useState<string | null>(null);
+  const [renameType, setRenameType] = useState<TypeLists>("camelCase");
   const resultRef = useRef<HTMLTextAreaElement>(null);
   const inited = useRef(false);
 
@@ -29,7 +31,7 @@ export default function JsonTool() {
     if (storedInput.trim()) {
       // 有缓存 → 恢复
       setInput(storedInput);
-      setResult(processJson(storedInput));
+      updateResult(storedInput);
       if (storedJsonpath.trim()) setJsonpath(storedJsonpath);
       return;
     }
@@ -39,26 +41,53 @@ export default function JsonTool() {
       .readText()
       .then((text) => {
         if (!text.trim()) return;
-        const parsed = processJson(text);
-        if (parsed.valid) {
+        try {
+          JSON.parse(text);
           setInput(text);
-          setResult(parsed);
+          updateResult(text);
+        } catch {
+          // 不是有效 JSON，不填充
         }
       })
       .catch(() => {});
   }, []);
 
-  // 输入防抖校验
-  useEffect(() => {
-    if (!input.trim()) {
+  const updateResult = useCallback((val: string) => {
+    if (!val.trim()) {
       setResult(null);
       return;
     }
+    const start = performance.now();
+    try {
+      const parsed = JSON.parse(val);
+      const formatted = JSON.stringify(parsed, null, 2);
+      setResult({
+        valid: true,
+        formatted,
+        parseTime: Math.round((performance.now() - start) * 100) / 100,
+      });
+    } catch (e) {
+      const msg = (e as Error).message;
+      let line: number | undefined;
+      let col: number | undefined;
+      const posMatch = msg.match(/position\s+(\d+)/i);
+      if (posMatch) {
+        const pos = parseInt(posMatch[1]);
+        const before = val.substring(0, pos);
+        line = (before.match(/\n/g) || []).length + 1;
+        col = pos - before.lastIndexOf('\n');
+      }
+      setResult({ valid: false, formatted: '', error: msg, line, col });
+    }
+  }, []);
+
+  // 输入防抖校验
+  useEffect(() => {
     const timer = setTimeout(() => {
-      setResult(processJson(input));
+      updateResult(input);
     }, 300);
     return () => clearTimeout(timer);
-  }, [input]);
+  }, [input, updateResult]);
 
   // 输入变更 → 同步到 store 缓存
   useEffect(() => {
@@ -70,7 +99,7 @@ export default function JsonTool() {
     setJsonpathInput(jsonpath);
   }, [jsonpath, setJsonpathInput]);
 
-  // JSONPath 防抖查询
+  // JSONPath 防抖查询 — 改用 inline JSON.parse
   useEffect(() => {
     if (!jsonpath.trim() || !result?.valid) {
       setJsonpathResult(null);
@@ -79,16 +108,60 @@ export default function JsonTool() {
     const timer = setTimeout(() => {
       try {
         const obj = JSON.parse(input);
-        const res = jsonpathQuery(obj, jsonpath.trim());
-        if (res.found) {
-          setJsonpathResult(
-            typeof res.value === "string"
-              ? res.value
-              : JSON.stringify(res.value, null, 2)
-          );
-        } else {
-          setJsonpathResult(`错误: ${res.error}`);
+        if (!jsonpath.startsWith("$")) {
+          setJsonpathResult("错误: JSONPath 必须以 $ 开头");
+          return;
         }
+        const expr = jsonpath.slice(1);
+        if (!expr) {
+          setJsonpathResult(JSON.stringify(obj, null, 2));
+          return;
+        }
+        // 简单路径解析：$.a.b[0].c
+        const parts: string[] = [];
+        let current = "";
+        for (let i = 0; i < expr.length; i++) {
+          if (expr[i] === ".") {
+            if (current) { parts.push(current); current = ""; }
+          } else if (expr[i] === "[") {
+            if (current) { parts.push(current); current = ""; }
+            let j = i + 1;
+            while (j < expr.length && expr[j] !== "]") j++;
+            parts.push(expr.substring(i, j + 1));
+            i = j;
+          } else {
+            current += expr[i];
+          }
+        }
+        if (current) parts.push(current);
+
+        let value: unknown = obj;
+        for (const part of parts) {
+          if (!part) continue;
+          if (part.startsWith("[")) {
+            const idx = parseInt(part.slice(1, -1), 10);
+            if (Array.isArray(value) && !isNaN(idx)) {
+              value = value[idx];
+            } else {
+              setJsonpathResult(`错误: 无法访问 ${part}`);
+              return;
+            }
+          } else {
+            if (value && typeof value === "object" && !Array.isArray(value)) {
+              value = (value as Record<string, unknown>)[part];
+            } else {
+              setJsonpathResult(`错误: 键 '${part}' 不存在`);
+              return;
+            }
+          }
+          if (value === undefined) {
+            setJsonpathResult(`错误: 路径 ${part} 的值是 undefined`);
+            return;
+          }
+        }
+        setJsonpathResult(
+          typeof value === "string" ? value : JSON.stringify(value, null, 2)
+        );
       } catch {
         setJsonpathResult(null);
       }
@@ -105,35 +178,59 @@ export default function JsonTool() {
       .catch(() => {});
   }, [jsonpathResult]);
 
-  const handleFormat = useCallback(() => {
+  const handleFormat = useCallback(async () => {
     if (!input.trim()) return;
     try {
-      setInput(JSON.stringify(JSON.parse(input), null, 2));
+      setInput(await ctoolJson.beautify(input, {tab: 2}));
     } catch {}
   }, [input]);
 
-  const handleMinify = useCallback(() => {
+  const handleMinify = useCallback(async () => {
     if (!input.trim()) return;
     try {
-      setInput(JSON.stringify(JSON.parse(input)));
+      setInput(await ctoolJson.compress(input));
     } catch {}
   }, [input]);
 
-  const handleSortKeys = useCallback(() => {
+  const handleSortAsc = useCallback(() => {
     if (!input.trim()) return;
     try {
-      setInput(JSON.stringify(sortKeys(JSON.parse(input)), null, 2));
+      setInput(JSON.stringify(ctoolJson.sortAsc(JSON.parse(input)), null, 2));
+    } catch {}
+  }, [input]);
+
+  const handleSortDesc = useCallback(() => {
+    if (!input.trim()) return;
+    try {
+      setInput(JSON.stringify(ctoolJson.sortDesc(JSON.parse(input)), null, 2));
     } catch {}
   }, [input]);
 
   const handleEscape = useCallback(() => {
-    setInput(escapeJson(input));
+    setInput(ctoolJson.escape(input));
   }, [input]);
 
   const handleUnescape = useCallback(() => {
-    const r = unescapeJson(input);
+    const r = ctoolJson.clearEscape(input);
     if (r !== input) setInput(r);
   }, [input]);
+
+  const handleUnicode2zh = useCallback(() => {
+    setInput(ctoolJson.unicode2zh(input));
+  }, [input]);
+
+  const handleZh2unicode = useCallback(() => {
+    setInput(ctoolJson.zh2unicode(input));
+  }, [input]);
+
+  const handleRename = useCallback(() => {
+    if (!input.trim()) return;
+    try {
+      const parsed = JSON.parse(input);
+      const renamed = ctoolJson.rename(parsed, renameType);
+      setInput(JSON.stringify(renamed, null, 2));
+    } catch {}
+  }, [input, renameType]);
 
   const handleClear = useCallback(() => {
     setInput("");
@@ -192,7 +289,7 @@ export default function JsonTool() {
         </div>
       )}
 
-      {/* 按钮组 */}
+      {/* 按钮组：第一行 — 常用操作 */}
       <div className="j-btn-group">
         <button className="action-btn" onClick={handleFormat} type="button">
           格式化
@@ -200,8 +297,11 @@ export default function JsonTool() {
         <button className="action-btn" onClick={handleMinify} type="button">
           压缩
         </button>
-        <button className="action-btn" onClick={handleSortKeys} type="button">
-          键排序
+        <button className="action-btn" onClick={handleSortAsc} type="button">
+          键升序
+        </button>
+        <button className="action-btn" onClick={handleSortDesc} type="button">
+          键降序
         </button>
         <button className="action-btn" onClick={handleEscape} type="button">
           转义
@@ -212,6 +312,31 @@ export default function JsonTool() {
         <span className="j-btn-sep" />
         <button className="action-btn" onClick={handleClear} type="button">
           ↻ 清空
+        </button>
+      </div>
+
+      {/* 按钮组：第二行 — Unicode 和命名转换 */}
+      <div className="j-btn-group" style={{marginTop: 6}}>
+        <button className="action-btn" onClick={handleUnicode2zh} type="button">
+          Unicode→中文
+        </button>
+        <button className="action-btn" onClick={handleZh2unicode} type="button">
+          中文→Unicode
+        </button>
+        <span className="j-btn-sep" />
+        <select
+          className="tool-select"
+          value={renameType}
+          onChange={(e) => setRenameType(e.target.value as TypeLists)}
+        >
+          {typeLists.map((t) => (
+            <option key={t.value} value={t.value}>
+              {t.label}
+            </option>
+          ))}
+        </select>
+        <button className="action-btn" onClick={handleRename} type="button">
+          键重命名
         </button>
       </div>
 
