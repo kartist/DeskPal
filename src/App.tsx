@@ -91,6 +91,7 @@ function App() {
             <div className="dock-icon" onClick={handleToggle} title="URL">🔗</div>
             <div className="dock-icon" onClick={handleToggle} title="正则">.*</div>
             <div className="dock-icon" onClick={handleToggle} title="JWT">🛡</div>
+            <div className="dock-icon" onClick={handleToggle} title="终端">▶</div>
             <div className="dock-icon" onClick={() => { handleToggle(); useStore.getState().setActiveTool('settings'); }} title="设置">⚙️</div>
           </div>
         </div>

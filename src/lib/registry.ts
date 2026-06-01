@@ -11,6 +11,7 @@ export const toolRegistry: ToolPlugin[] = [
   { id: "url", name: "URL 编解码", icon: "link", keywords: ["url", "encode", "decode", "编解码", "链接"], order: 7 },
   { id: "regex", name: "正则测试", icon: "code", keywords: ["regex", "正则", "正则表达式", "re"], order: 8 },
   { id: "jwt", name: "JWT 解析", icon: "shield", keywords: ["jwt", "token", "解析", "解码", "header", "payload"], order: 9 },
+  { id: "terminal", name: "终端", icon: "terminal", keywords: ["cmd", "terminal", "命令行", "shell", "powershell"], order: 10 },
   { id: "settings", name: "设置", icon: "settings", keywords: ["config", "pref"], order: 99 },
 ];
 

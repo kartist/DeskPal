@@ -15,5 +15,6 @@ export const toolComponents: Record<string, ToolComponent> = {
   url: lazy(() => import("./url")),
   regex: lazy(() => import("./regex")),
   jwt: lazy(() => import("./jwt")),
+  terminal: lazy(() => import("./terminal")),
   // 后续工具在这里加一行即可
 };
