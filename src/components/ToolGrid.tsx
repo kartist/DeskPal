@@ -1,7 +1,7 @@
 import { useStore } from "../store";
 import { gridTools } from "../lib/registry";
 import {
-  Clock, Braces, Type, CaseSensitive, FileDiff,
+  Clock, Braces, Type, CaseSensitive, FileDiff, Link2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -11,6 +11,7 @@ const iconMap: Record<string, LucideIcon> = {
   type: Type,
   "case-sensitive": CaseSensitive,
   "file-diff": FileDiff,
+  link: Link2,
 };
 
 export function ToolGrid() {

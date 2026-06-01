@@ -7,6 +7,7 @@ export const toolRegistry: ToolPlugin[] = [
   { id: "naming", name: "变量命名", icon: "case-sensitive", keywords: ["naming", "命名", "变量", "case"], order: 3 },
   { id: "diff", name: "文本比对", icon: "file-diff", keywords: ["diff", "比对", "比较", "差异"], order: 4 },
   { id: "random", name: "随机字符", icon: "shuffle", keywords: ["random", "随机", "密码", "字符"], order: 5 },
+  { id: "url", name: "URL 编解码", icon: "link", keywords: ["url", "encode", "decode", "编解码", "链接"], order: 6 },
   { id: "settings", name: "设置", icon: "settings", keywords: ["config", "pref"], order: 9 },
 ];
 
