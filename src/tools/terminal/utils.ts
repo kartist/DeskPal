@@ -8,17 +8,9 @@ export interface ExecutionResult {
 }
 
 /** Execute command (wait for completion, return all output) */
-export async function executeCommand(
-  command: string,
-  signal?: AbortSignal
-): Promise<ExecutionResult> {
+export async function executeCommand(command: string): Promise<ExecutionResult> {
   const start = Date.now();
   const cmd = Command.create('cmd', ['/C', command]);
-
-  signal?.addEventListener('abort', () => {
-    cmd.kill();
-  }, { once: true });
-
   const output = await cmd.execute();
   return {
     stdout: output.stdout,
