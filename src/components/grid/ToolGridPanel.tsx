@@ -89,15 +89,18 @@ export default function ToolGridPanel() {
 
     const onUp = (e: MouseEvent) => {
       const targetCatId = findCategoryAt(e.clientX, e.clientY);
-      if (targetCatId && targetCatId !== drag.sourceCatId && targetCatId !== "__all__") {
-        // Move tool between categories
+      if (targetCatId && targetCatId !== drag.sourceCatId) {
         setCategories(
           categories.map((cat) => {
+            // Remove from source (unless __all__)
             if (cat.id === drag.sourceCatId && !cat.isSystem) {
               return { ...cat, toolIds: cat.toolIds.filter((id) => id !== drag.toolId) };
             }
-            if (cat.id === targetCatId) {
-              return { ...cat, toolIds: [...cat.toolIds, drag.toolId] };
+            // Add to target (unless __all__, and deduplicate)
+            if (cat.id === targetCatId && cat.id !== "__all__") {
+              if (!cat.toolIds.includes(drag.toolId)) {
+                return { ...cat, toolIds: [...cat.toolIds, drag.toolId] };
+              }
             }
             return cat;
           })
