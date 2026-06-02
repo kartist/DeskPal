@@ -2,7 +2,8 @@ import { useEffect, useRef } from 'react';
 import { ChevronRight, Pin, PinOff, ArrowLeft, Settings, RotateCcw, Save } from 'lucide-react';
 import { togglePanel, setConfig as ipcSetConfig, resetConfig } from '../lib/ipc';
 import { invoke } from '@tauri-apps/api/core';
-import { useStore } from '../store';
+import { useStore } from "../store";
+import { useToast } from "../store/toastStore";
 import { toolRegistry } from '../lib/registry';
 
 export default function TitleBar() {
@@ -121,6 +122,8 @@ export default function TitleBar() {
                   resetConfig().then((defaults) => {
                     useStore.getState().setConfig(defaults);
                     return ipcSetConfig(defaults);
+                  }).then(() => {
+                    useToast.getState().show("已恢复默认值");
                   }).catch(console.error);
                 }}
                 title="恢复默认"
@@ -132,7 +135,9 @@ export default function TitleBar() {
                 className="titlebar-btn"
                 onClick={() => {
                   const cfg = useStore.getState().config;
-                  if (cfg) ipcSetConfig(cfg).catch(console.error);
+                  if (cfg) ipcSetConfig(cfg).then(() => {
+                    useToast.getState().show("已保存");
+                  }).catch(console.error);
                 }}
                 title="保存"
                 aria-label="保存"

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { getConfig, setConfig as ipcSetConfig } from "../lib/ipc";
 import type { DeskPalConfig } from "../types";
 import { useStore } from "../store";
+import { useToast } from "../store/toastStore";
 
 type ConfigKey = keyof DeskPalConfig;
 
@@ -108,7 +109,9 @@ export function SettingsPanel() {
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => {
       setStoreConfig(localConfig);
-      ipcSetConfig(localConfig).catch(console.error);
+      ipcSetConfig(localConfig).then(() => {
+        useToast.getState().show("已保存");
+      }).catch(console.error);
     }, 500);
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
