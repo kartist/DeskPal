@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { ChevronRight, Pin, PinOff, ArrowLeft } from 'lucide-react';
+import { ChevronRight, Pin, PinOff, ArrowLeft, Settings } from 'lucide-react';
 import { togglePanel } from '../lib/ipc';
 import { invoke } from '@tauri-apps/api/core';
 import { useStore } from '../store';
@@ -106,6 +106,14 @@ export default function TitleBar() {
             {pinned ? <Pin size={14} /> : <PinOff size={14} />}
           </button>
           <button
+            className="titlebar-btn"
+            onClick={() => setActiveTool('settings')}
+            title="设置"
+            aria-label="设置"
+          >
+            <Settings size={14} />
+          </button>
+          <button
             className="titlebar-btn titlebar-close"
             onClick={handleClose}
             title="折叠"
@@ -129,6 +137,14 @@ export default function TitleBar() {
           aria-label={pinned ? '取消固定' : '固定面板'}
         >
           {pinned ? <Pin size={14} /> : <PinOff size={14} />}
+        </button>
+        <button
+          className="titlebar-btn"
+          onClick={() => setActiveTool('settings')}
+          title="设置"
+          aria-label="设置"
+        >
+          <Settings size={14} />
         </button>
         <button
           className="titlebar-btn titlebar-close"
