@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { ChevronRight, Pin, PinOff, ArrowLeft, Settings } from 'lucide-react';
-import { togglePanel } from '../lib/ipc';
+import { ChevronRight, Pin, PinOff, ArrowLeft, Settings, RotateCcw, Save } from 'lucide-react';
+import { togglePanel, setConfig as ipcSetConfig, resetConfig } from '../lib/ipc';
 import { invoke } from '@tauri-apps/api/core';
 import { useStore } from '../store';
 import { toolRegistry } from '../lib/registry';
@@ -113,14 +113,43 @@ export default function TitleBar() {
           >
             {pinned ? <Pin size={14} /> : <PinOff size={14} />}
           </button>
-          <button
-            className="titlebar-btn"
-            onClick={() => setActiveTool('settings')}
-            title="设置"
-            aria-label="设置"
-          >
-            <Settings size={14} />
-          </button>
+          {activeTool === 'settings' ? (
+            <>
+              <button
+                className="titlebar-btn"
+                onClick={() => {
+                  resetConfig().then((defaults) => {
+                    useStore.getState().setConfig(defaults);
+                    return ipcSetConfig(defaults);
+                  }).catch(console.error);
+                }}
+                title="恢复默认"
+                aria-label="恢复默认"
+              >
+                <RotateCcw size={14} />
+              </button>
+              <button
+                className="titlebar-btn"
+                onClick={() => {
+                  const cfg = useStore.getState().config;
+                  if (cfg) ipcSetConfig(cfg).catch(console.error);
+                }}
+                title="保存"
+                aria-label="保存"
+              >
+                <Save size={14} />
+              </button>
+            </>
+          ) : (
+            <button
+              className="titlebar-btn"
+              onClick={() => setActiveTool('settings')}
+              title="设置"
+              aria-label="设置"
+            >
+              <Settings size={14} />
+            </button>
+          )}
           <button
             className="titlebar-btn titlebar-close"
             onClick={handleClose}

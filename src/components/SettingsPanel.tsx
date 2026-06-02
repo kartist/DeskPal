@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
-import { getConfig, setConfig as ipcSetConfig, resetConfig } from "../lib/ipc";
+import { useState, useEffect, useRef } from "react";
+import { getConfig, setConfig as ipcSetConfig } from "../lib/ipc";
 import type { DeskPalConfig } from "../types";
 import { useStore } from "../store";
-import { Save, RotateCcw } from "lucide-react";
 
 type ConfigKey = keyof DeskPalConfig;
 
@@ -78,57 +77,43 @@ const THEME_OPTIONS = [
 ];
 
 export function SettingsPanel() {
-  const [config, setConfig] = useState<DeskPalConfig | null>(null);
+  const storeConfig = useStore((s) => s.config);
+  const setStoreConfig = useStore((s) => s.setConfig);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
+  // 加载配置到 store（启动时已加载，这里作为兜底）
   useEffect(() => {
+    if (storeConfig) {
+      setLoading(false);
+      return;
+    }
     getConfig()
       .then((cfg) => {
-        setConfig(cfg);
+        setStoreConfig(cfg);
         setLoading(false);
       })
       .catch((err) => {
         console.error("Failed to load config:", err);
         setLoading(false);
       });
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 自动保存：config 变化 500ms 后写入 Rust
+  useEffect(() => {
+    if (!storeConfig) return;
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      ipcSetConfig(storeConfig).catch(console.error);
+    }, 500);
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, [storeConfig]);
 
   const updateField = <K extends ConfigKey>(key: K, value: DeskPalConfig[K]) => {
-    if (!config) return;
-    setConfig({ ...config, [key]: value });
-  };
-
-  const handleSave = async () => {
-    if (!config) return;
-    setSaving(true);
-    setSaved(false);
-    try {
-      // 1. Update frontend store
-      useStore.getState().setConfig(config);
-      // 2. Save to Rust backend via IPC
-      await ipcSetConfig(config);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    } catch (err) {
-      console.error("Failed to save config:", err);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleReset = async () => {
-    try {
-      const defaults = await resetConfig();
-      setConfig(defaults);
-      useStore.getState().setConfig(defaults);
-      await ipcSetConfig(defaults);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    } catch (err) {
-      console.error("Failed to reset config:", err);
-    }
+    if (!storeConfig) return;
+    setStoreConfig({ ...storeConfig, [key]: value });
   };
 
   if (loading) {
@@ -139,7 +124,7 @@ export function SettingsPanel() {
     );
   }
 
-  if (!config) {
+  if (!storeConfig) {
     return (
       <div style={styles.container}>
         <div style={styles.loadingText}>无法加载配置</div>
@@ -147,32 +132,11 @@ export function SettingsPanel() {
     );
   }
 
+  const config = storeConfig;
+
   return (
     <div style={styles.container}>
       <div style={styles.body}>
-        <div style={styles.actionBar}>
-          <button
-            onClick={handleReset}
-            style={styles.resetBtn}
-            title="恢复默认"
-          >
-            <RotateCcw size={14} />
-            <span>恢复默认</span>
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            style={{
-              ...styles.saveBtn,
-              ...(saved ? styles.saveBtnSuccess : {}),
-              ...(saving ? styles.saveBtnDisabled : {}),
-            }}
-          >
-            <Save size={14} />
-            <span>{saving ? "保存中..." : saved ? "已保存" : "保存"}</span>
-          </button>
-        </div>
-
         {/* 🖥 窗口 */}
         <SectionCard icon="🖥" title="窗口">
           <SettingRow
@@ -474,16 +438,7 @@ const styles: Record<string, React.CSSProperties> = {
     outline: "none",
     width: 90,
   },
-  actionBar: {
-    display: "flex",
-    justifyContent: "flex-end",
-    gap: 8,
-    alignItems: "center",
-    paddingBottom: 8,
-    borderBottom: "1px solid var(--divider)",
-    marginBottom: 8,
-  },
-  resetBtn: {
+  saveBtn: {
     display: "flex",
     alignItems: "center",
     gap: 6,
@@ -497,14 +452,6 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     cursor: "pointer",
     transition: "all 100ms ease",
-  },
-  saveBtnSuccess: {
-    background: "var(--success)",
-    borderColor: "var(--success)",
-  },
-  saveBtnDisabled: {
-    opacity: 0.6,
-    cursor: "not-allowed",
   },
   loadingText: {
     flex: 1,
