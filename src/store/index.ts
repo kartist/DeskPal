@@ -1,4 +1,7 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import type { ToolCategory } from "../types";
+import { buildDefaultCategories } from "../lib/categories";
 
 export type WindowMode = "dormant" | "hidden" | "expanded";
 
@@ -44,23 +47,54 @@ export interface AppState {
   setJsonInput: (text: string) => void;
   jsonpathInput: string;
   setJsonpathInput: (text: string) => void;
+
+  /** 工具网格编辑模式 */
+  editMode: boolean;
+  setEditMode: (v: boolean) => void;
+
+  /** 分类列表 */
+  categories: ToolCategory[];
+  setCategories: (cats: ToolCategory[]) => void;
+
+  /** 当前选中的分类 ID */
+  activeCategory: string;
+  setActiveCategory: (id: string) => void;
 }
 
-export const useStore = create<AppState>((set) => ({
-  windowMode: "dormant" as WindowMode,
-  setWindowMode: (mode) => set({ windowMode: mode }),
-  activeTool: null,
-  setActiveTool: (toolId) => set({ activeTool: toolId }),
-  clipboardText: "",
-  setClipboardText: (text) => set({ clipboardText: text }),
-  config: null,
-  setConfig: (config) => set({ config, resolvedTheme: config.theme === "light" ? "light" : "dark" }),
-  resolvedTheme: "dark",
-  setTheme: (theme) => set({ resolvedTheme: theme }),
-  pinned: false,
-  setPinned: (pinned) => set({ pinned }),
-  jsonInput: "",
-  setJsonInput: (text) => set({ jsonInput: text }),
-  jsonpathInput: "",
-  setJsonpathInput: (text) => set({ jsonpathInput: text }),
-}));
+export const useStore = create<AppState>()(
+  persist(
+    (set) => ({
+      windowMode: "dormant" as WindowMode,
+      setWindowMode: (mode) => set({ windowMode: mode }),
+      activeTool: null,
+      setActiveTool: (toolId) => set({ activeTool: toolId }),
+      clipboardText: "",
+      setClipboardText: (text) => set({ clipboardText: text }),
+      config: null,
+      setConfig: (config) => set({ config, resolvedTheme: config.theme === "light" ? "light" : "dark" }),
+      resolvedTheme: "dark",
+      setTheme: (theme) => set({ resolvedTheme: theme }),
+      pinned: false,
+      setPinned: (pinned) => set({ pinned }),
+      jsonInput: "",
+      setJsonInput: (text) => set({ jsonInput: text }),
+      jsonpathInput: "",
+      setJsonpathInput: (text) => set({ jsonpathInput: text }),
+
+      // 工具网格分类
+      editMode: false,
+      setEditMode: (v) => set({ editMode: v }),
+      categories: buildDefaultCategories(),
+      setCategories: (cats) => set({ categories: cats }),
+      activeCategory: "__frequent__",
+      setActiveCategory: (id) => set({ activeCategory: id }),
+    }),
+    {
+      name: "deskpal-ui-state",
+      partialize: (state) => ({
+        categories: state.categories,
+        activeCategory: state.activeCategory,
+      }),
+    }
+  )
+);

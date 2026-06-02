@@ -1,0 +1,192 @@
+/* === Category Tabs === */
+.cat-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px 0;
+  flex-wrap: wrap;
+  align-items: center;
+  min-height: 36px;
+}
+
+.cat-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 100ms ease;
+  white-space: nowrap;
+  user-select: none;
+  font-family: var(--font-ui);
+}
+
+.cat-tab:hover {
+  background: var(--btn-bg-hover);
+  color: var(--text-primary);
+}
+
+.cat-tab.active {
+  background: var(--btn-bg-active);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.cat-tab.system {
+  /* no special visual, just a system marker */
+}
+
+/* === Category edit buttons (rename/delete) === */
+.cat-tab-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-size: 11px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 100ms;
+}
+
+.cat-tab-edit-btn:hover {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
+.cat-tab-edit-btn.danger:hover {
+  color: var(--danger);
+}
+
+.cat-tab-lock {
+  font-size: 10px;
+  opacity: 0.4;
+  margin-right: 1px;
+}
+
+/* === Add category button === */
+.cat-add-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: 16px;
+  border: 1px dashed var(--btn-border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 100ms;
+  padding: 0;
+  line-height: 1;
+}
+
+.cat-add-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--btn-bg-hover);
+}
+
+/* === Edit mode bar === */
+.edit-mode-bar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 6px 12px;
+  gap: 8px;
+  border-bottom: 1px solid var(--divider);
+}
+
+.edit-mode-bar .edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid var(--btn-border);
+  background: var(--btn-bg);
+  color: var(--text-primary);
+  transition: all 100ms;
+  font-family: var(--font-ui);
+}
+
+.edit-mode-bar .edit-btn:hover {
+  background: var(--btn-bg-hover);
+}
+
+.edit-mode-bar .edit-btn.done {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.edit-mode-bar .edit-btn.done:hover {
+  opacity: 0.9;
+}
+
+.edit-mode-bar .edit-btn.active {
+  background: var(--btn-bg-active);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* === Tool card: edit mode state === */
+.tool-card.edit-mode {
+  cursor: grab;
+  border-style: dashed;
+  border-color: var(--btn-border);
+  position: relative;
+}
+
+.tool-card.edit-mode:active {
+  cursor: grabbing;
+}
+
+.tool-card.edit-mode.dragging {
+  opacity: 0.3;
+}
+
+.tool-card.edit-mode.drag-over {
+  border: 2px solid var(--accent);
+  background: var(--btn-bg-hover);
+  transform: scale(1.05);
+}
+
+/* === Empty category placeholder === */
+.empty-category {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+  min-height: 120px;
+}
+
+.empty-category-icon {
+  font-size: 32px;
+  opacity: 0.3;
+}
+
+/* === ToolGrid wrapper for scroll === */
+.toolgrid-scroll {
+  flex: 1;
+  overflow-y: auto;
+}

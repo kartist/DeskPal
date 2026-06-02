@@ -3,9 +3,9 @@ import { useStore } from "./store";
 import { togglePanel, triggerAutoHide, triggerHoverActivate } from "./lib/ipc";
 import { listenToEvents } from "./lib/events";
 import TitleBar from "./components/TitleBar";
-import { ToolGrid } from "./components/ToolGrid";
-import { SettingsPanel } from "./components/SettingsPanel";
 import ToolPanel from "./components/ToolPanel";
+import ToolGridPanel from "./components/grid/ToolGridPanel";
+import { SettingsPanel } from "./components/SettingsPanel";
 import { StatusBar } from "./components/StatusBar";
 import Toast from "./components/Toast";
 import "./styles/global.css";
@@ -114,9 +114,7 @@ function App() {
       ) : windowMode === "expanded" && (
         <div className="deskpal-panel panel-enter">
           <TitleBar />
-          <div className="tool-grid-wrapper">
-            <ToolGrid />
-          </div>
+          <ToolGridPanel />
           <StatusBar />
           <div className="resize-grip" title="拖拽调整高度" />
         </div>

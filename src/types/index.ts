@@ -24,3 +24,11 @@ export interface DeskPalConfig {
   live_timestamp: boolean;
   dblclick_threshold_ms: number;
 }
+
+/** 工具分类 */
+export interface ToolCategory {
+  id: string;           // 唯一标识（系统分类用 "__all__" / "__frequent__"，用户自定义用 uuidv4）
+  name: string;         // 显示名称
+  toolIds: string[];    // 有序的工具 ID 列表（与 registry 中的 id 对应）
+  isSystem: boolean;    // true = "全部"（不可删除、不可重命名）
+}
