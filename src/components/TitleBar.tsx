@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { ChevronRight, Pin, PinOff, ArrowLeft, Settings, RotateCcw, Save } from 'lucide-react';
+import { ChevronRight, Pin, PinOff, ArrowLeft, Settings, RotateCcw, Save, Pencil, Check } from 'lucide-react';
 import { togglePanel, setConfig as ipcSetConfig, resetConfig } from '../lib/ipc';
 import { invoke } from '@tauri-apps/api/core';
 import { useStore } from "../store";
@@ -9,6 +9,8 @@ import { toolRegistry } from '../lib/registry';
 export default function TitleBar() {
   const pinned = useStore((s) => s.pinned);
   const setPinned = useStore((s) => s.setPinned);
+  const editMode = useStore((s) => s.editMode);
+  const setEditMode = useStore((s) => s.setEditMode);
   const activeTool = useStore((s) => s.activeTool);
   const setActiveTool = useStore((s) => s.setActiveTool);
 
@@ -179,6 +181,14 @@ export default function TitleBar() {
           aria-label={pinned ? '取消固定' : '固定面板'}
         >
           {pinned ? <Pin size={14} /> : <PinOff size={14} />}
+        </button>
+        <button
+          className={`titlebar-btn${editMode ? ' active' : ''}`}
+          onClick={() => setEditMode(!editMode)}
+          title={editMode ? '完成编辑' : '编辑布局'}
+          aria-label={editMode ? '完成编辑' : '编辑布局'}
+        >
+          {editMode ? <Check size={14} /> : <Pencil size={14} />}
         </button>
         <button
           className="titlebar-btn"

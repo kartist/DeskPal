@@ -3,7 +3,6 @@ import { createPortal } from "react-dom";
 import { useStore } from "../../store";
 import { gridTools } from "../../lib/registry";
 import CategorySection from "./CategorySection";
-import EditModeBar from "./EditModeBar";
 import { Clock, Terminal, Braces, Type, CaseSensitive, FileDiff, Fingerprint, Shuffle, Link2, Code, Shield } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import "./grid.css";
@@ -135,7 +134,6 @@ export default function ToolGridPanel() {
 
   return (
     <div className="toolgrid-panel">
-      <EditModeBar />
       <div className="cat-sections">
         {categories.map((cat) => (
           <CategorySection

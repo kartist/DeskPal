@@ -172,44 +172,6 @@
   background: var(--btn-bg-hover);
 }
 
-/* === Grid header — edit toggle button at top-right === */
-.grid-header {
-  display: flex;
-  align-items: center;
-  padding: 4px 8px;
-  min-height: 32px;
-}
-
-.grid-edit-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--btn-border);
-  background: var(--btn-bg);
-  color: var(--text-secondary);
-  cursor: pointer;
-  border-radius: 6px;
-  transition: all 100ms;
-}
-
-.grid-edit-btn:hover {
-  background: var(--btn-bg-hover);
-  color: var(--text-primary);
-  border-color: var(--accent);
-}
-
-.grid-edit-btn.active {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-}
-
-.grid-edit-btn.active:hover {
-  opacity: 0.9;
-}
-
 /* === Tool card: edit mode state (unchanged from before) === */
 .tool-card.edit-mode {
   cursor: grab;
