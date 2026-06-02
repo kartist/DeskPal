@@ -49,7 +49,7 @@ fn default_dock_position() -> String {
 }
 #[allow(dead_code)]
 fn default_dormant_width() -> f64 {
-    36.0
+    20.0
 }
 #[allow(dead_code)]
 fn default_panel_width() -> f64 {
