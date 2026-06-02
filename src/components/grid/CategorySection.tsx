@@ -60,7 +60,7 @@ export default function CategorySection({
     setCategories(remaining);
   }, [category, categories, setCategories]);
 
-  // Cross-category drop (on the section body area)
+  // Drop on this section — move tool from another category
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
@@ -95,14 +95,17 @@ export default function CategorySection({
     [category.id, categories, setCategories]
   );
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
+  // Allow drop by preventing default on dragover
+  const allowDrop = useCallback((e: React.DragEvent) => {
+    if (!editMode) return;
     e.preventDefault();
+    e.stopPropagation();
     e.dataTransfer.dropEffect = "move";
-  }, []);
+  }, [editMode]);
 
   // Within-category reorder
   const handleReorder = useCallback(
-    (_e: React.DragEvent, from: number, to: number) => {
+    (from: number, to: number) => {
       if (category.id === "__all__" || category.isSystem) return;
       const ids = [...category.toolIds];
       ids.splice(from, 1);
@@ -118,13 +121,18 @@ export default function CategorySection({
   return (
     <div
       className={`cat-section${dropOver ? " drop-target" : ""}`}
-      onDragOver={editMode ? handleDragOver : undefined}
+      onDragOver={allowDrop}
       onDragEnter={editMode ? () => setDropOver(true) : undefined}
       onDragLeave={editMode ? () => setDropOver(false) : undefined}
       onDrop={editMode ? handleDrop : undefined}
     >
       {/* Header */}
-      <div className="cat-header" onClick={onToggle}>
+      <div
+        className="cat-header"
+        onClick={onToggle}
+        onDragOver={allowDrop}
+        onDrop={editMode ? handleDrop : undefined}
+      >
         <span className="cat-arrow">{collapsed ? "▶" : "▼"}</span>
         {category.isSystem && (
           <span className="cat-lock" title="系统分类，不可删除">🔒</span>
@@ -173,9 +181,17 @@ export default function CategorySection({
 
       {/* Tools grid (when expanded) */}
       {!collapsed && (
-        <div className="cat-body">
+        <div
+          className="cat-body"
+          onDragOver={allowDrop}
+          onDrop={editMode ? handleDrop : undefined}
+        >
           {tools.length === 0 ? (
-            <div className="cat-empty">
+            <div
+              className="cat-empty"
+              onDragOver={allowDrop}
+              onDrop={editMode ? handleDrop : undefined}
+            >
               <span className="cat-empty-icon">📦</span>
               <span>拖拽工具到此处</span>
             </div>
@@ -191,9 +207,7 @@ export default function CategorySection({
                   onSelect={(id) => setActiveTool(id)}
                   onDragStart={() => {}}
                   onDragOver={() => {}}
-                  onDrop={(e, toIdx) =>
-                    handleReorder(e, index, toIdx)
-                  }
+                  onDrop={() => handleReorder(index, index)}
                   onDragEnd={() => {}}
                 />
               ))}
