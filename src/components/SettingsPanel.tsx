@@ -79,17 +79,20 @@ const THEME_OPTIONS = [
 export function SettingsPanel() {
   const storeConfig = useStore((s) => s.config);
   const setStoreConfig = useStore((s) => s.setConfig);
+  const [localConfig, setLocalConfig] = useState<DeskPalConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
-  // 加载配置到 store（启动时已加载，这里作为兜底）
+  // 加载配置：优先从 store，否则从 Rust
   useEffect(() => {
     if (storeConfig) {
+      setLocalConfig(storeConfig);
       setLoading(false);
       return;
     }
     getConfig()
       .then((cfg) => {
+        setLocalConfig(cfg);
         setStoreConfig(cfg);
         setLoading(false);
       })
@@ -99,21 +102,22 @@ export function SettingsPanel() {
       });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // 自动保存：config 变化 500ms 后写入 Rust
+  // 自动保存：localConfig 变化 500ms 后提交到 store + Rust
   useEffect(() => {
-    if (!storeConfig) return;
+    if (!localConfig) return;
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => {
-      ipcSetConfig(storeConfig).catch(console.error);
+      setStoreConfig(localConfig);
+      ipcSetConfig(localConfig).catch(console.error);
     }, 500);
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
-  }, [storeConfig]);
+  }, [localConfig]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const updateField = <K extends ConfigKey>(key: K, value: DeskPalConfig[K]) => {
-    if (!storeConfig) return;
-    setStoreConfig({ ...storeConfig, [key]: value });
+    if (!localConfig) return;
+    setLocalConfig({ ...localConfig, [key]: value });
   };
 
   if (loading) {
@@ -124,7 +128,7 @@ export function SettingsPanel() {
     );
   }
 
-  if (!storeConfig) {
+  if (!localConfig) {
     return (
       <div style={styles.container}>
         <div style={styles.loadingText}>无法加载配置</div>
@@ -132,7 +136,7 @@ export function SettingsPanel() {
     );
   }
 
-  const config = storeConfig;
+  const config = localConfig;
 
   return (
     <div style={styles.container}>
