@@ -53,6 +53,24 @@ function Toggle({
   );
 }
 
+interface SectionCardProps {
+  icon: string;
+  title: string;
+  children: React.ReactNode;
+}
+
+function SectionCard({ icon, title, children }: SectionCardProps) {
+  return (
+    <div style={styles.sectionCard}>
+      <div style={styles.sectionHeader}>
+        <span style={styles.sectionIcon}>{icon}</span>
+        <span style={styles.sectionTitle}>{title}</span>
+      </div>
+      <div style={styles.sectionBody}>{children}</div>
+    </div>
+  );
+}
+
 const THEME_OPTIONS = [
   { value: "dark", label: "深色" },
   { value: "light", label: "浅色" },
@@ -88,6 +106,9 @@ export function SettingsPanel() {
     setSaving(true);
     setSaved(false);
     try {
+      // 1. Update frontend store
+      useStore.getState().setConfig(config);
+      // 2. Save to Rust backend via IPC
       await ipcSetConfig(config);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
@@ -131,94 +152,151 @@ export function SettingsPanel() {
       </div>
 
       <div style={styles.body}>
-        <SettingRow label="自动隐藏" description="鼠标离开面板时自动收缩">
-          <Toggle
-            value={config.auto_hide_enabled}
-            onChange={(v) => updateField("auto_hide_enabled", v)}
-          />
-        </SettingRow>
-
-        <SettingRow
-          label="隐藏延迟 (ms)"
-          description={`${config.auto_hide_delay_ms}ms`}
-        >
-          <input
-            type="range"
-            min={500}
-            max={5000}
-            step={100}
-            value={config.auto_hide_delay_ms}
-            onChange={(e) =>
-              updateField("auto_hide_delay_ms", Number(e.target.value))
-            }
-            style={styles.slider}
-          />
-        </SettingRow>
-
-        <SettingRow label="主题">
-          <select
-            value={config.theme}
-            onChange={(e) => updateField("theme", e.target.value)}
-            style={styles.select}
+        {/* 🖥 窗口 */}
+        <SectionCard icon="🖥" title="窗口">
+          <SettingRow
+            label="收缩条宽度"
+            description={`${config.dormant_width}px`}
           >
-            {THEME_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </SettingRow>
+            <input
+              type="range"
+              min={10}
+              max={60}
+              step={2}
+              value={config.dormant_width}
+              onChange={(e) =>
+                updateField("dormant_width", Number(e.target.value))
+              }
+              style={styles.slider}
+            />
+          </SettingRow>
 
-        <SettingRow
-          label="收缩条宽度 (px)"
-          description={`${config.dormant_width}px`}
-        >
-          <input
-            type="range"
-            min={10}
-            max={60}
-            step={2}
-            value={config.dormant_width}
-            onChange={(e) =>
-              updateField("dormant_width", Number(e.target.value))
-            }
-            style={styles.slider}
-          />
-        </SettingRow>
+          <SettingRow
+            label="面板宽度"
+            description={`${config.panel_width}px`}
+          >
+            <input
+              type="range"
+              min={200}
+              max={1200}
+              step={20}
+              value={config.panel_width}
+              onChange={(e) =>
+                updateField("panel_width", Number(e.target.value))
+              }
+              style={styles.slider}
+            />
+          </SettingRow>
+        </SectionCard>
 
-        <SettingRow
-          label="面板宽度 (px)"
-          description={`${config.panel_width}px`}
-        >
-          <input
-            type="range"
-            min={200}
-            max={1200}
-            step={20}
-            value={config.panel_width}
-            onChange={(e) =>
-              updateField("panel_width", Number(e.target.value))
-            }
-            style={styles.slider}
-          />
-        </SettingRow>
+        {/* 🎨 外观 */}
+        <SectionCard icon="🎨" title="外观">
+          <SettingRow label="主题">
+            <select
+              value={config.theme}
+              onChange={(e) => updateField("theme", e.target.value)}
+              style={styles.select}
+            >
+              {THEME_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </SettingRow>
 
-        <SettingRow
-          label="双击判定时间 (ms)"
-          description={`${config.dblclick_threshold_ms}ms`}
-        >
-          <input
-            type="range"
-            min={100}
-            max={1000}
-            step={50}
-            value={config.dblclick_threshold_ms}
-            onChange={(e) =>
-              updateField("dblclick_threshold_ms", Number(e.target.value))
-            }
-            style={styles.slider}
-          />
-        </SettingRow>
+          <SettingRow label="收缩态背景色">
+            <div style={styles.colorRow}>
+              <input
+                type="color"
+                value={config.dormant_bar_bg}
+                onChange={(e) =>
+                  updateField("dormant_bar_bg", e.target.value)
+                }
+                style={styles.colorPicker}
+              />
+              <span style={styles.colorValue}>{config.dormant_bar_bg}</span>
+            </div>
+          </SettingRow>
+
+          <SettingRow label="收缩态文字色">
+            <div style={styles.colorRow}>
+              <input
+                type="color"
+                value={config.dormant_bar_text_color}
+                onChange={(e) =>
+                  updateField("dormant_bar_text_color", e.target.value)
+                }
+                style={styles.colorPicker}
+              />
+              <span style={styles.colorValue}>
+                {config.dormant_bar_text_color}
+              </span>
+            </div>
+          </SettingRow>
+
+          <SettingRow label="收缩态标签">
+            <input
+              type="text"
+              value={config.dormant_bar_label}
+              onChange={(e) =>
+                updateField("dormant_bar_label", e.target.value)
+              }
+              style={styles.textInput}
+            />
+          </SettingRow>
+        </SectionCard>
+
+        {/* ⌨ 交互 */}
+        <SectionCard icon="⌨" title="交互">
+          <SettingRow label="双击固定面板">
+            <Toggle
+              value={config.double_click_pin_enabled}
+              onChange={(v) => updateField("double_click_pin_enabled", v)}
+            />
+          </SettingRow>
+
+          <SettingRow label="自动隐藏">
+            <Toggle
+              value={config.auto_hide_enabled}
+              onChange={(v) => updateField("auto_hide_enabled", v)}
+            />
+          </SettingRow>
+
+          <SettingRow
+            label="隐藏延迟"
+            description={`${config.auto_hide_delay_ms}ms`}
+          >
+            <input
+              type="range"
+              min={500}
+              max={5000}
+              step={100}
+              value={config.auto_hide_delay_ms}
+              onChange={(e) =>
+                updateField("auto_hide_delay_ms", Number(e.target.value))
+              }
+              style={styles.slider}
+            />
+          </SettingRow>
+
+          <SettingRow
+            label="双击判定时间"
+            description={`${config.dblclick_threshold_ms}ms`}
+          >
+            <input
+              type="range"
+              min={100}
+              max={1000}
+              step={50}
+              value={config.dblclick_threshold_ms}
+              onChange={(e) =>
+                updateField("dblclick_threshold_ms", Number(e.target.value))
+              }
+              style={styles.slider}
+            />
+          </SettingRow>
+        </SectionCard>
       </div>
 
       <div style={styles.footer}>
@@ -265,10 +343,35 @@ const styles: Record<string, React.CSSProperties> = {
   body: {
     flex: 1,
     overflowY: "auto",
-    padding: "8px 12px",
+    padding: "12px",
     display: "flex",
     flexDirection: "column",
-    gap: 2,
+    gap: 12,
+  },
+  sectionCard: {
+    border: "1px solid var(--btn-border)",
+    borderRadius: 8,
+    overflow: "hidden",
+    background: "var(--card-bg)",
+  },
+  sectionHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    padding: "8px 12px",
+    borderBottom: "1px solid var(--divider)",
+    background: "var(--card-header-bg)",
+  },
+  sectionIcon: {
+    fontSize: 14,
+  },
+  sectionTitle: {
+    fontSize: 13,
+    fontWeight: 600,
+    color: "var(--text-primary)",
+  },
+  sectionBody: {
+    padding: "4px 12px",
   },
   row: {
     display: "flex",
@@ -334,6 +437,35 @@ const styles: Record<string, React.CSSProperties> = {
     outline: "none",
     cursor: "pointer",
     minWidth: 100,
+  },
+  colorRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+  },
+  colorPicker: {
+    width: 28,
+    height: 24,
+    padding: 0,
+    border: "1px solid var(--input-border)",
+    borderRadius: 4,
+    cursor: "pointer",
+    background: "none",
+  },
+  colorValue: {
+    fontSize: 11,
+    color: "var(--text-muted)",
+    fontFamily: "monospace",
+  },
+  textInput: {
+    background: "var(--input-bg)",
+    color: "var(--input-text)",
+    border: "1px solid var(--input-border)",
+    borderRadius: 4,
+    padding: "4px 8px",
+    fontSize: 12,
+    outline: "none",
+    width: 90,
   },
   footer: {
     display: "flex",
