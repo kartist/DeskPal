@@ -9,24 +9,20 @@ pub struct DeskPalConfig {
     pub auto_hide_delay_ms: u64,
     #[serde(default = "default_theme")]
     pub theme: String,
-    #[serde(default = "default_dock_position")]
-    pub dock_position: String,
     #[serde(default = "default_dormant_width")]
     pub dormant_width: f64,
     #[serde(default = "default_panel_width")]
     pub panel_width: f64,
-    #[serde(default = "default_panel_height_min")]
-    pub panel_height_min: f64,
-    #[serde(default = "default_panel_height_max")]
-    pub panel_height_max: f64,
-    #[serde(default = "default_smart_recommend")]
-    pub smart_recommend: bool,
-    #[serde(default = "default_live_timestamp")]
-    pub live_timestamp: bool,
-    #[serde(default = "default_hotkey")]
-    pub hotkey: String,
     #[serde(default = "default_dblclick_threshold_ms")]
     pub dblclick_threshold_ms: u64,
+    #[serde(default = "default_dormant_bar_bg")]
+    pub dormant_bar_bg: String,
+    #[serde(default = "default_dormant_bar_text_color")]
+    pub dormant_bar_text_color: String,
+    #[serde(default = "default_dormant_bar_label")]
+    pub dormant_bar_label: String,
+    #[serde(default = "default_double_click_pin_enabled")]
+    pub double_click_pin_enabled: bool,
 }
 
 // ---- Default values ----
@@ -44,10 +40,6 @@ fn default_theme() -> String {
     "dark".to_string()
 }
 #[allow(dead_code)]
-fn default_dock_position() -> String {
-    "right".to_string()
-}
-#[allow(dead_code)]
 fn default_dormant_width() -> f64 {
     20.0
 }
@@ -56,28 +48,24 @@ fn default_panel_width() -> f64 {
     480.0
 }
 #[allow(dead_code)]
-fn default_panel_height_min() -> f64 {
-    300.0
-}
-#[allow(dead_code)]
-fn default_panel_height_max() -> f64 {
-    2000.0
-}
-#[allow(dead_code)]
-fn default_smart_recommend() -> bool {
-    true
-}
-#[allow(dead_code)]
-fn default_live_timestamp() -> bool {
-    true
-}
-#[allow(dead_code)]
-fn default_hotkey() -> String {
-    "Ctrl+Shift+D".to_string()
-}
-#[allow(dead_code)]
 fn default_dblclick_threshold_ms() -> u64 {
     300
+}
+#[allow(dead_code)]
+fn default_dormant_bar_bg() -> String {
+    "#1C2333".to_string()
+}
+#[allow(dead_code)]
+fn default_dormant_bar_text_color() -> String {
+    "#58A6FF".to_string()
+}
+#[allow(dead_code)]
+fn default_dormant_bar_label() -> String {
+    "DESKPAL".to_string()
+}
+#[allow(dead_code)]
+fn default_double_click_pin_enabled() -> bool {
+    true
 }
 
 impl Default for DeskPalConfig {
@@ -86,15 +74,13 @@ impl Default for DeskPalConfig {
             auto_hide_enabled: default_auto_hide_enabled(),
             auto_hide_delay_ms: default_auto_hide_delay_ms(),
             theme: default_theme(),
-            dock_position: default_dock_position(),
             dormant_width: default_dormant_width(),
             panel_width: default_panel_width(),
-            panel_height_min: default_panel_height_min(),
-            panel_height_max: default_panel_height_max(),
-            smart_recommend: default_smart_recommend(),
-            live_timestamp: default_live_timestamp(),
-            hotkey: default_hotkey(),
             dblclick_threshold_ms: default_dblclick_threshold_ms(),
+            dormant_bar_bg: default_dormant_bar_bg(),
+            dormant_bar_text_color: default_dormant_bar_text_color(),
+            dormant_bar_label: default_dormant_bar_label(),
+            double_click_pin_enabled: default_double_click_pin_enabled(),
         }
     }
 }

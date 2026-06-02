@@ -67,14 +67,6 @@ pub fn get_fields() -> Vec<ConfigField> {
             default: 0.0,
         },
         ConfigField {
-            key: "dock_position",
-            label: "停靠位置",
-            field_type: ConfigFieldType::Select {
-                options: vec![("right", "右侧"), ("left", "左侧")],
-            },
-            default: 0.0,
-        },
-        ConfigField {
             key: "dormant_width",
             label: "收缩条宽度",
             field_type: ConfigFieldType::Slider {
@@ -83,7 +75,7 @@ pub fn get_fields() -> Vec<ConfigField> {
                 step: 2.0,
                 unit: "px",
             },
-            default: 36.0,
+            default: 20.0,
         },
         ConfigField {
             key: "panel_width",
@@ -97,18 +89,6 @@ pub fn get_fields() -> Vec<ConfigField> {
             default: 480.0,
         },
         ConfigField {
-            key: "smart_recommend",
-            label: "智能推荐",
-            field_type: ConfigFieldType::Toggle,
-            default: 1.0,
-        },
-        ConfigField {
-            key: "live_timestamp",
-            label: "实时时间戳",
-            field_type: ConfigFieldType::Toggle,
-            default: 1.0,
-        },
-        ConfigField {
             key: "dblclick_threshold_ms",
             label: "双击判定时间",
             field_type: ConfigFieldType::Slider {
@@ -118,6 +98,36 @@ pub fn get_fields() -> Vec<ConfigField> {
                 unit: "ms",
             },
             default: 300.0,
+        },
+        ConfigField {
+            key: "dormant_bar_bg",
+            label: "收缩条背景色",
+            field_type: ConfigFieldType::Input {
+                placeholder: "#RRGGBB",
+            },
+            default: 0.0,
+        },
+        ConfigField {
+            key: "dormant_bar_text_color",
+            label: "收缩条文字色",
+            field_type: ConfigFieldType::Input {
+                placeholder: "#RRGGBB",
+            },
+            default: 0.0,
+        },
+        ConfigField {
+            key: "dormant_bar_label",
+            label: "收缩条标签",
+            field_type: ConfigFieldType::Input {
+                placeholder: "DESKPAL",
+            },
+            default: 0.0,
+        },
+        ConfigField {
+            key: "double_click_pin_enabled",
+            label: "双击固定面板",
+            field_type: ConfigFieldType::Toggle,
+            default: 1.0,
         },
     ]
 }

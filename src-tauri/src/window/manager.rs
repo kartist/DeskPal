@@ -52,6 +52,35 @@ impl WindowManager {
     pub fn window(&self) -> &WebviewWindow { &self.window }
     pub fn current_dormant_width(&self) -> f64 { self.current_dormant_width }
 
+    pub fn apply_config(&mut self, config: &DeskPalConfig) -> Result<(), Box<dyn std::error::Error>> {
+        let mut changed = false;
+
+        // Check dormant_width
+        if (self.dormant_width - config.dormant_width).abs() > 0.1 {
+            self.dormant_width = config.dormant_width;
+            self.current_dormant_width = config.dormant_width;
+            changed = true;
+        }
+
+        // Check panel_width
+        if (self.panel_width - config.panel_width).abs() > 0.1 {
+            self.panel_width = config.panel_width;
+            changed = true;
+        }
+
+        if changed {
+            match self.state {
+                WindowState::Dormant => {
+                    self.resize_to_dormant()?;
+                }
+                WindowState::Expanded => {
+                    self.resize_to_expanded()?;
+                }
+            }
+        }
+        Ok(())
+    }
+
     pub fn on_trigger(
         &mut self,
         trigger: &trigger::Trigger,
@@ -59,7 +88,7 @@ impl WindowManager {
         let current = *self.state();
         let cdw = self.current_dormant_width;
         eprintln!("[DeskPal] on_trigger({:?}) state={:?} dw={:.0}", trigger, current, cdw);
-        let actions = trigger.actions(current, cdw);
+        let actions = trigger.actions(current, cdw, self.dormant_width);
 
         for action in &actions.pre_exit {
             self.execute(action)?;
@@ -195,7 +224,6 @@ impl WindowManager {
                     let hz = ((pos.x as f64 + aw / 2.0) / sw).clamp(0.0, 1.0);
                     self.vertical_pos = vz;
                     self.horizontal_pos = hz;
-                    self.panel_width = aw;
                     self.panel_height = ah;
                     let data = serde_json::json!({
                         "panel_height": ah, "panel_width": aw,

@@ -54,10 +54,18 @@ fn get_config(
 fn set_config(
     loader: tauri::State<'_, Mutex<crate::config::loader::ConfigLoader>>,
     config: crate::config::types::DeskPalConfig,
+    wm: tauri::State<'_, Mutex<WindowManager>>,
 ) -> Result<(), String> {
     let mut l = loader.lock().map_err(|e| e.to_string())?;
     *l.config_mut() = config.clone();
-    crate::config::loader::ConfigLoader::save(&config)
+    crate::config::loader::ConfigLoader::save(&config)?;
+
+    // Apply geometry changes immediately
+    if let Ok(mut manager) = wm.lock() {
+        let _ = manager.apply_config(&config);
+    }
+
+    Ok(())
 }
 
 /// AutoHide: from frontend when cursor leaves dormant bar for 2s

@@ -36,7 +36,7 @@ pub struct TriggerActions {
 }
 
 impl Trigger {
-    pub fn actions(&self, current: WindowState, _current_dormant_width: f64) -> TriggerActions {
+    pub fn actions(&self, current: WindowState, _current_dormant_width: f64, dormant_width: f64) -> TriggerActions {
         use Action::*;
         use Trigger::*;
         use WindowState::*;
@@ -57,7 +57,7 @@ impl Trigger {
                 transition_to: Some(Dormant),
                 post_enter: vec![
                     SetSizeConstraints(0.0, 0.0),
-                    SetDormantWidth(36.0), SetResizable(false),
+                    SetDormantWidth(dormant_width), SetResizable(false),
                     RepositionToEdge, SetFocusable(false), EmitStateChange,
                 ],
             },
@@ -67,7 +67,7 @@ impl Trigger {
                 pre_exit: vec![],
                 transition_to: None,
                 post_enter: vec![
-                    SetDormantWidth(36.0), SetResizable(false),
+                    SetDormantWidth(dormant_width), SetResizable(false),
                     RepositionToEdge, ShowWindow, SetFocusable(false),
                 ],
             },
@@ -94,7 +94,7 @@ impl Trigger {
                 pre_exit: vec![],
                 transition_to: None,
                 post_enter: vec![
-                    SetDormantWidth(36.0), SetResizable(false),
+                    SetDormantWidth(dormant_width), SetResizable(false),
                     RepositionToEdge, EmitStateChange,
                 ],
             },
