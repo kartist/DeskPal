@@ -26,8 +26,7 @@ interface DragState {
 }
 
 export default function ToolGridPanel() {
-  const { categories, setCategories, editMode } = useStore();
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const { categories, setCategories, editMode, collapsedCategories, setCollapsedCategories } = useStore();
   const [drag, setDrag] = useState<DragState | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
 
@@ -43,8 +42,13 @@ export default function ToolGridPanel() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps — only on mount
 
   const handleToggle = useCallback((catId: string) => {
-    setCollapsed((prev) => ({ ...prev, [catId]: !prev[catId] }));
-  }, []);
+    const isCollapsed = collapsedCategories.includes(catId);
+    if (isCollapsed) {
+      setCollapsedCategories(collapsedCategories.filter((id) => id !== catId));
+    } else {
+      setCollapsedCategories([...collapsedCategories, catId]);
+    }
+  }, [collapsedCategories, setCollapsedCategories]);
 
   const addCategory = useCallback(() => {
     const name = prompt("请输入分类名称:");
@@ -138,7 +142,7 @@ export default function ToolGridPanel() {
             key={cat.id}
             category={cat}
             editMode={editMode}
-            collapsed={!!collapsed[cat.id]}
+            collapsed={collapsedCategories.includes(cat.id)}
             dropTargetId={dropTarget}
             dragToolId={drag?.toolId ?? null}
             onToggle={() => handleToggle(cat.id)}

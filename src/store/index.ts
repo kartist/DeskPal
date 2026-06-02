@@ -59,6 +59,10 @@ export interface AppState {
   /** 当前选中的分类 ID */
   activeCategory: string;
   setActiveCategory: (id: string) => void;
+
+  /** 折叠状态：已折叠的分类 ID 列表 */
+  collapsedCategories: string[];
+  setCollapsedCategories: (ids: string[]) => void;
 }
 
 export const useStore = create<AppState>()(
@@ -88,12 +92,17 @@ export const useStore = create<AppState>()(
       setCategories: (cats) => set({ categories: cats }),
       activeCategory: "__frequent__",
       setActiveCategory: (id) => set({ activeCategory: id }),
+
+      // 折叠状态
+      collapsedCategories: [] as string[],
+      setCollapsedCategories: (ids) => set({ collapsedCategories: ids }),
     }),
     {
       name: "deskpal-ui-state",
       partialize: (state) => ({
         categories: state.categories,
         activeCategory: state.activeCategory,
+        collapsedCategories: state.collapsedCategories,
       }),
     }
   )
