@@ -2,7 +2,6 @@ import { useState, useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useStore } from "../../store";
 import { gridTools } from "../../lib/registry";
-import { mergeAllTools } from "../../lib/categories";
 import CategorySection from "./CategorySection";
 import EditModeBar from "./EditModeBar";
 import { Clock, Terminal, Braces, Type, CaseSensitive, FileDiff, Fingerprint, Shuffle, Link2, Code, Shield } from "lucide-react";
@@ -32,6 +31,17 @@ export default function ToolGridPanel() {
   const [drag, setDrag] = useState<DragState | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
 
+  // One-time cleanup: deduplicate persisted toolIds (remove stale duplicates from localStorage)
+  useEffect(() => {
+    let dirty = false;
+    const cleaned = categories.map((cat) => {
+      const deduped = [...new Set(cat.toolIds)];
+      if (deduped.length !== cat.toolIds.length) { dirty = true; }
+      return { ...cat, toolIds: deduped };
+    });
+    if (dirty) setCategories(cleaned);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps — only on mount
+
   const handleToggle = useCallback((catId: string) => {
     setCollapsed((prev) => ({ ...prev, [catId]: !prev[catId] }));
   }, []);
@@ -49,11 +59,10 @@ export default function ToolGridPanel() {
     const el = e.currentTarget as HTMLElement;
     const rect = el.getBoundingClientRect();
 
-    // Find source category
-    const sourceCat = categories.find((c) => {
-      const ids = c.id === "__all__" ? mergeAllTools(c.toolIds) : c.toolIds;
-      return ids.includes(toolId);
-    });
+    // Find source category — prefer non-__all__ (where user actually placed it)
+    const sourceCat =
+      categories.filter(c => c.id !== "__all__").find((c) => c.toolIds.includes(toolId))
+      ?? categories.find((c) => c.id === "__all__");
     if (!sourceCat) return;
 
     setDrag({
@@ -90,8 +99,7 @@ export default function ToolGridPanel() {
     const onUp = (e: MouseEvent) => {
       const targetCatId = findCategoryAt(e.clientX, e.clientY);
       if (targetCatId && targetCatId !== drag.sourceCatId) {
-        setCategories(
-          categories.map((cat) => {
+        const next = categories.map((cat) => {
             // Remove from source (unless __all__)
             if (cat.id === drag.sourceCatId && !cat.isSystem) {
               return { ...cat, toolIds: cat.toolIds.filter((id) => id !== drag.toolId) };
@@ -103,8 +111,8 @@ export default function ToolGridPanel() {
               }
             }
             return cat;
-          })
-        );
+          });
+        setCategories(next);
       }
       setDrag(null);
       setDropTarget(null);

@@ -26,7 +26,8 @@ export default function CategorySection({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const resolvedToolIds = category.id === "__all__"
-    ? mergeAllTools(category.toolIds) : category.toolIds;
+    ? mergeAllTools(category.toolIds)
+    : [...new Set(category.toolIds)];  // dedup in case of stale duplicate data
 
   const tools = resolvedToolIds
     .map((id) => gridTools.find((t) => t.id === id))
