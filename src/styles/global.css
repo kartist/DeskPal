@@ -17,26 +17,26 @@ html, body, #root {
 
 /* === Dark theme (default) — inline vars, no @import === */
 :root {
-  --panel-bg: #1e1e1e;
-  --panel-border: #30363d;
+  --panel-bg: #1C2333;
+  --panel-border: #2A3347;
   --panel-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --titlebar-bg: #252526;
+  --titlebar-bg: #21283A;
   --titlebar-text: #cccccc;
-  --titlebar-btn-hover: #3c3c3c;
-  --search-bg: #2d2d2d;
-  --search-border: #404040;
+  --titlebar-btn-hover: #2A3347;
+  --search-bg: #21283A;
+  --search-border: #2A3347;
   --search-text: #e1e4e8;
   --search-placeholder: #6e7681;
-  --btn-bg: #252526;
-  --btn-bg-hover: #2d2d2d;
+  --btn-bg: #21283A;
+  --btn-bg-hover: #283047;
   --btn-bg-active: #1a3a5c;
-  --btn-border: #333333;
+  --btn-border: #2A3347;
   --btn-icon: #e1e4e8;
   --btn-label: #8b949e;
-  --input-bg: #1a1a1a;
-  --input-border: #404040;
+  --input-bg: #181F2E;
+  --input-border: #2A3347;
   --input-text: #e1e4e8;
-  --output-bg: #161b22;
+  --output-bg: #151B28;
   --accent: #58a6ff;
   --success: #3fb950;
   --warning: #d29922;
