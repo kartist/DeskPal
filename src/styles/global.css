@@ -123,7 +123,7 @@ html, body, #root {
 
 .dormant-bar-label {
   writing-mode: vertical-rl;
-  font-size: 10px;
+  font-size: 13px;
   color: rgb(88, 166, 255);
   letter-spacing: 2px;
 }
