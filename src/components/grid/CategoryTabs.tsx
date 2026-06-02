@@ -5,6 +5,44 @@ export default function CategoryTabs() {
   const { categories, setCategories, activeCategory, setActiveCategory, editMode } = useStore();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
+  const [dropTargetId, setDropTargetId] = useState<string | null>(null);
+
+  // Drag-over on category tab — highlight target
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  }, []);
+
+  // Drop on category tab — move tool
+  const handleDrop = useCallback(
+    (e: React.DragEvent, targetCatId: string) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDropTargetId(null);
+
+      const toolId = e.dataTransfer.getData("text/plain");
+      if (!toolId) return;
+
+      // Find which category currently contains this tool
+      const sourceCat = categories.find((cat) => cat.toolIds.includes(toolId));
+      if (!sourceCat) return;
+      if (sourceCat.id === targetCatId) return; // same category, no-op
+
+      // Remove from source, add to target
+      const updated = categories.map((cat) => {
+        if (cat.id === sourceCat.id && !cat.isSystem) {
+          return { ...cat, toolIds: cat.toolIds.filter((id) => id !== toolId) };
+        }
+        if (cat.id === targetCatId) {
+          return { ...cat, toolIds: [...cat.toolIds, toolId] };
+        }
+        return cat;
+      });
+      setCategories(updated);
+      setActiveCategory(targetCatId);
+    },
+    [categories, setCategories, setActiveCategory]
+  );
 
   // Start rename
   const startRename = useCallback((catId: string, currentName: string) => {
@@ -77,8 +115,12 @@ export default function CategoryTabs() {
       {categories.map((cat) => (
         <div
           key={cat.id}
-          className={`cat-tab${activeCategory === cat.id ? " active" : ""}${cat.isSystem ? " system" : ""}`}
+          className={`cat-tab${activeCategory === cat.id ? " active" : ""}${cat.isSystem ? " system" : ""}${dropTargetId === cat.id ? " drop-target" : ""}`}
           onClick={() => setActiveCategory(cat.id)}
+          onDragOver={editMode ? handleDragOver : undefined}
+          onDragEnter={editMode ? () => setDropTargetId(cat.id) : undefined}
+          onDragLeave={editMode ? () => setDropTargetId(null) : undefined}
+          onDrop={editMode ? (e) => handleDrop(e, cat.id) : undefined}
         >
           {editingId === cat.id ? (
             <input

@@ -52,7 +52,11 @@ export default function ToolCard({
         if (editMode) return; // edit mode: click doesn't select the tool
         onSelect(isActive ? null : tool.id);
       }}
-      onDragStart={(e) => onDragStart(e, tool.id)}
+      onDragStart={(e) => {
+        e.dataTransfer.setData("text/plain", tool.id);
+        e.dataTransfer.effectAllowed = "move";
+        onDragStart(e, tool.id);
+      }}
       onDragOver={(e) => {
         e.preventDefault();
         onDragOver(e, index);
