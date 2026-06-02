@@ -29,16 +29,16 @@ pub struct WindowManager {
 
 impl WindowManager {
     pub fn new(window: WebviewWindow, state_path: &PathBuf, config: &DeskPalConfig) -> Self {
-        let (h, v, hz, w) = Self::load_state(state_path);
+        let (h, v, hz) = Self::load_state(state_path);
         let dw = config.dormant_width;
         eprintln!(
             "[DeskPal] WindowManager::new(): panel={}x{} v={:.4} h={:.4} dw={:.0}",
-            w, h, v, hz, dw
+            config.panel_width, h, v, hz, dw
         );
         Self {
             window,
             state: WindowState::Dormant,
-            panel_width: if w > 0.0 { w } else { config.panel_width },
+            panel_width: config.panel_width,
             dormant_width: dw,
             current_dormant_width: dw,
             panel_height: h,
@@ -222,27 +222,26 @@ impl WindowManager {
                 if sw > 0.0 && sh > 0.0 {
                     let vz = ((pos.y as f64 + ah / 2.0) / sh).clamp(0.0, 1.0);
                     let hz = ((pos.x as f64 + aw / 2.0) / sw).clamp(0.0, 1.0);
-                    self.vertical_pos = vz;
-                    self.horizontal_pos = hz;
-                    self.panel_height = ah;
                     let data = serde_json::json!({
                         "panel_height": ah, "panel_width": aw,
                         "vertical_pos": vz, "horizontal_pos": hz,
                     });
                     let _ = std::fs::create_dir_all(self.state_path.parent().unwrap());
-                    let _ = std::fs::write(&self.state_path, serde_json::to_string_pretty(&data).unwrap_or_default());
+                    let _ = std::fs::write(
+                        &self.state_path,
+                        serde_json::to_string_pretty(&data).unwrap_or_default(),
+                    );
                 }
             }
         }
     }
 
-    fn load_state(path: &PathBuf) -> (f64, f64, f64, f64) {
+    fn load_state(path: &PathBuf) -> (f64, f64, f64) {
         let s = std::fs::read_to_string(path).ok();
         let v = s.and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok());
         let h = v.as_ref().and_then(|v| v.get("panel_height")?.as_f64()).unwrap_or(0.0);
-        let w = v.as_ref().and_then(|v| v.get("panel_width")?.as_f64()).unwrap_or(0.0);
         let p = v.as_ref().and_then(|v| v.get("vertical_pos")?.as_f64()).unwrap_or(0.5);
         let hz = v.as_ref().and_then(|v| v.get("horizontal_pos")?.as_f64()).unwrap_or(0.9);
-        (h, p, hz, w)
+        (h, p, hz)
     }
 }
