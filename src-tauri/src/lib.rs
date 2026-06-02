@@ -38,6 +38,12 @@ fn drag_window(app: tauri::AppHandle) -> Result<(), String> {
     }
 }
 
+/// Return the default config (factory reset).
+#[tauri::command]
+fn reset_config() -> crate::config::types::DeskPalConfig {
+    crate::config::types::DeskPalConfig::default()
+}
+
 /// Read the current config from the managed ConfigLoader.
 #[tauri::command]
 fn get_config(
@@ -181,6 +187,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             toggle_panel,
             drag_window,
+            reset_config,
             get_config,
             set_config,
             trigger_auto_hide,

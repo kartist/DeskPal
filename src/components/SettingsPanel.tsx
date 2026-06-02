@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { getConfig, setConfig as ipcSetConfig } from "../lib/ipc";
+import { getConfig, setConfig as ipcSetConfig, resetConfig } from "../lib/ipc";
 import type { DeskPalConfig } from "../types";
 import { useStore } from "../store";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, RotateCcw } from "lucide-react";
 
 type ConfigKey = keyof DeskPalConfig;
 
@@ -116,6 +116,19 @@ export function SettingsPanel() {
       console.error("Failed to save config:", err);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleReset = async () => {
+    try {
+      const defaults = await resetConfig();
+      setConfig(defaults);
+      useStore.getState().setConfig(defaults);
+      await ipcSetConfig(defaults);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      console.error("Failed to reset config:", err);
     }
   };
 
@@ -245,6 +258,23 @@ export function SettingsPanel() {
               style={styles.textInput}
             />
           </SettingRow>
+
+          <SettingRow
+            label="收缩态字号"
+            description={`${config.dormant_bar_font_size}px`}
+          >
+            <input
+              type="range"
+              min={8}
+              max={24}
+              step={1}
+              value={config.dormant_bar_font_size}
+              onChange={(e) =>
+                updateField("dormant_bar_font_size", Number(e.target.value))
+              }
+              style={styles.slider}
+            />
+          </SettingRow>
         </SectionCard>
 
         {/* ⌨ 交互 */}
@@ -304,18 +334,28 @@ export function SettingsPanel() {
           <ArrowLeft size={14} />
           <span>返回</span>
         </button>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          style={{
-            ...styles.saveBtn,
-            ...(saved ? styles.saveBtnSuccess : {}),
-            ...(saving ? styles.saveBtnDisabled : {}),
-          }}
-        >
-          <Save size={14} />
-          <span>{saving ? "保存中..." : saved ? "已保存" : "保存"}</span>
-        </button>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <button
+            onClick={handleReset}
+            style={styles.resetBtn}
+            title="恢复默认"
+          >
+            <RotateCcw size={14} />
+            <span>恢复默认</span>
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            style={{
+              ...styles.saveBtn,
+              ...(saved ? styles.saveBtnSuccess : {}),
+              ...(saving ? styles.saveBtnDisabled : {}),
+            }}
+          >
+            <Save size={14} />
+            <span>{saving ? "保存中..." : saved ? "已保存" : "保存"}</span>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -484,6 +524,20 @@ const styles: Record<string, React.CSSProperties> = {
     border: "1px solid var(--btn-border)",
     background: "var(--btn-bg)",
     color: "var(--text-primary)",
+    borderRadius: 4,
+    fontSize: 12,
+    cursor: "pointer",
+    transition: "all 100ms ease",
+  },
+  resetBtn: {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    height: 30,
+    padding: "0 12px",
+    border: "1px solid var(--btn-border)",
+    background: "var(--btn-bg)",
+    color: "var(--warning)",
     borderRadius: 4,
     fontSize: 12,
     cursor: "pointer",

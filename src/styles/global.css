@@ -123,9 +123,11 @@ html, body, #root {
 
 .dormant-bar-label {
   writing-mode: vertical-rl;
-  font-size: 13px;
+  font-size: var(--dormant-bar-font-size, 13px);
   color: var(--dormant-bar-text, rgb(88, 166, 255));
   letter-spacing: 2px;
+  text-align: center;
+  line-height: 1.4;
 }
 
 /* === Expanded panel === */

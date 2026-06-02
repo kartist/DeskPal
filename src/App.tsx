@@ -58,6 +58,7 @@ function App() {
     const root = document.documentElement;
     root.style.setProperty('--dormant-bar-bg', config.dormant_bar_bg || '#1C2333');
     root.style.setProperty('--dormant-bar-text', config.dormant_bar_text_color || '#58A6FF');
+    root.style.setProperty('--dormant-bar-font-size', `${config.dormant_bar_font_size ?? 13}px`);
   }, [config]);
 
   const handleDormantMouseEnter = useCallback(() => {

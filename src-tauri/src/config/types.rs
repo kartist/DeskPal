@@ -21,6 +21,8 @@ pub struct DeskPalConfig {
     pub dormant_bar_text_color: String,
     #[serde(default = "default_dormant_bar_label")]
     pub dormant_bar_label: String,
+    #[serde(default = "default_dormant_bar_font_size")]
+    pub dormant_bar_font_size: f64,
     #[serde(default = "default_double_click_pin_enabled")]
     pub double_click_pin_enabled: bool,
 }
@@ -64,6 +66,10 @@ fn default_dormant_bar_label() -> String {
     "DESKPAL".to_string()
 }
 #[allow(dead_code)]
+fn default_dormant_bar_font_size() -> f64 {
+    13.0
+}
+#[allow(dead_code)]
 fn default_double_click_pin_enabled() -> bool {
     true
 }
@@ -80,6 +86,7 @@ impl Default for DeskPalConfig {
             dormant_bar_bg: default_dormant_bar_bg(),
             dormant_bar_text_color: default_dormant_bar_text_color(),
             dormant_bar_label: default_dormant_bar_label(),
+            dormant_bar_font_size: default_dormant_bar_font_size(),
             double_click_pin_enabled: default_double_click_pin_enabled(),
         }
     }

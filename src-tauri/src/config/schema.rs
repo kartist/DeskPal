@@ -129,5 +129,16 @@ pub fn get_fields() -> Vec<ConfigField> {
             field_type: ConfigFieldType::Toggle,
             default: 1.0,
         },
+        ConfigField {
+            key: "dormant_bar_font_size",
+            label: "收缩条字号",
+            field_type: ConfigFieldType::Slider {
+                min: 8.0,
+                max: 24.0,
+                step: 1.0,
+                unit: "px",
+            },
+            default: 13.0,
+        },
     ]
 }

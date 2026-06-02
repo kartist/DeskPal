@@ -21,6 +21,7 @@ export interface DeskPalConfig {
   dormant_bar_bg: string;         // hex color e.g. "#1C2333"
   dormant_bar_text_color: string; // hex color e.g. "#58A6FF"
   dormant_bar_label: string;      // text shown in dormant bar e.g. "DESKPAL"
+  dormant_bar_font_size: number;  // font size for dormant bar label
   double_click_pin_enabled: boolean;
 }
 
