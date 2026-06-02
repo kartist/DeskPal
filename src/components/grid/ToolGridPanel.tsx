@@ -131,6 +131,7 @@ export default function ToolGridPanel() {
 
   return (
     <div className="toolgrid-panel">
+      <EditModeBar />
       <div className="cat-sections">
         {categories.map((cat) => (
           <CategorySection
@@ -148,9 +149,6 @@ export default function ToolGridPanel() {
           <button className="cat-add-btn" title="新增分类" onClick={addCategory}>+</button>
         )}
       </div>
-      {editMode && <EditModeBar />}
-
-      {/* Drag ghost via portal */}
       {drag && dragTool && createPortal(
         <div
           className="drag-ghost"

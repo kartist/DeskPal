@@ -1,18 +1,18 @@
+import { Pencil, Check } from "lucide-react";
 import { useStore } from "../../store";
 
 export default function EditModeBar() {
-  const { setEditMode } = useStore();
+  const { editMode, setEditMode } = useStore();
 
   return (
-    <div className="edit-mode-bar">
-      <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
-        拖拽工具卡片调整顺序，点击分类标签右侧按钮管理分类
-      </span>
+    <div className="grid-header">
+      <span style={{ flex: 1 }} />
       <button
-        className="edit-btn done"
-        onClick={() => setEditMode(false)}
+        className={`grid-edit-btn${editMode ? " active" : ""}`}
+        onClick={() => setEditMode(!editMode)}
+        title={editMode ? "完成编辑" : "编辑布局"}
       >
-        完成
+        {editMode ? <Check size={16} /> : <Pencil size={16} />}
       </button>
     </div>
   );
