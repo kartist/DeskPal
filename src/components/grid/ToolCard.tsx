@@ -2,71 +2,35 @@ import { Clock, Terminal, Braces, Type, CaseSensitive, FileDiff, Fingerprint, Sh
 import type { LucideIcon } from "lucide-react";
 import type { ToolPlugin } from "../../types";
 
-// Map tool icon keys to lucide-react components
 const iconMap: Record<string, LucideIcon> = {
-  clock: Clock,
-  braces: Braces,
-  type: Type,
-  "case-sensitive": CaseSensitive,
-  "file-diff": FileDiff,
-  fingerprint: Fingerprint,
-  shuffle: Shuffle,
-  link: Link2,
-  code: Code,
-  shield: Shield,
-  terminal: Terminal,
+  clock: Clock, braces: Braces, type: Type, "case-sensitive": CaseSensitive,
+  "file-diff": FileDiff, fingerprint: Fingerprint, shuffle: Shuffle,
+  link: Link2, code: Code, shield: Shield, terminal: Terminal,
 };
 
 interface ToolCardProps {
   tool: ToolPlugin;
   isActive: boolean;
   editMode: boolean;
-  index: number;
+  isDragging?: boolean;
   onSelect: (toolId: string | null) => void;
-  onDragStart: (e: React.DragEvent, toolId: string) => void;
-  onDragOver: (e: React.DragEvent, index: number) => void;
-  onDragLeave?: (e: React.DragEvent) => void;
-  onDrop: (e: React.DragEvent, index: number) => void;
-  onDragEnd?: (e: React.DragEvent) => void;
+  onDragStart: (e: React.MouseEvent, toolId: string) => void;
 }
 
-export default function ToolCard({
-  tool,
-  isActive,
-  editMode,
-  index,
-  onSelect,
-  onDragStart,
-  onDragOver,
-  onDragLeave,
-  onDrop,
-  onDragEnd,
-}: ToolCardProps) {
+export default function ToolCard({ tool, isActive, editMode, isDragging, onSelect, onDragStart }: ToolCardProps) {
   const Icon = iconMap[tool.icon] || Clock;
 
   return (
     <div
-      className={`tool-card${isActive ? " active" : ""}${editMode ? " edit-mode" : ""}`}
-      draggable={editMode}
+      className={`tool-card${isActive ? " active" : ""}${editMode ? " edit-mode" : ""}${isDragging ? " dragging" : ""}`}
       onClick={() => {
-        if (editMode) return; // edit mode: click doesn't select the tool
+        if (editMode) return;
         onSelect(isActive ? null : tool.id);
       }}
-      onDragStart={(e) => {
-        e.dataTransfer.setData("text/plain", tool.id);
-        e.dataTransfer.effectAllowed = "move";
+      onMouseDown={(e) => {
+        if (!editMode) return;
         onDragStart(e, tool.id);
       }}
-      onDragOver={(e) => {
-        e.preventDefault();
-        onDragOver(e, index);
-      }}
-      onDragLeave={onDragLeave}
-      onDrop={(e) => {
-        e.preventDefault();
-        onDrop(e, index);
-      }}
-      onDragEnd={onDragEnd}
     >
       <Icon className="tool-card-icon" size={24} />
       <span className="tool-card-label">{tool.name}</span>

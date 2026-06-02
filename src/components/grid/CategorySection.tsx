@@ -9,206 +9,92 @@ interface CategorySectionProps {
   category: ToolCategory;
   editMode: boolean;
   collapsed: boolean;
+  dropTargetId: string | null;
+  dragToolId: string | null;
   onToggle: () => void;
+  onDragStart: (e: React.MouseEvent, toolId: string) => void;
 }
 
 export default function CategorySection({
-  category,
-  editMode,
-  collapsed,
-  onToggle,
+  category, editMode, collapsed,
+  dropTargetId, dragToolId,
+  onToggle, onDragStart,
 }: CategorySectionProps) {
   const { setCategories, categories, activeTool, setActiveTool } = useStore();
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(category.name);
-  const [dropOver, setDropOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Resolve tool list
-  const resolvedToolIds =
-    category.id === "__all__"
-      ? mergeAllTools(category.toolIds)
-      : category.toolIds;
+  const resolvedToolIds = category.id === "__all__"
+    ? mergeAllTools(category.toolIds) : category.toolIds;
 
   const tools = resolvedToolIds
     .map((id) => gridTools.find((t) => t.id === id))
     .filter(Boolean) as typeof gridTools;
 
-  // Rename
+  const isDropTarget = dropTargetId === category.id;
+
   const startRename = useCallback(() => {
-    setNameInput(category.name);
-    setEditingName(true);
+    setNameInput(category.name); setEditingName(true);
     setTimeout(() => inputRef.current?.focus(), 0);
   }, [category.name]);
 
   const confirmRename = useCallback(() => {
-    if (!nameInput.trim()) {
-      setEditingName(false);
-      return;
-    }
-    const updated = categories.map((cat) =>
-      cat.id === category.id ? { ...cat, name: nameInput.trim() } : cat
-    );
-    setCategories(updated);
+    if (!nameInput.trim()) { setEditingName(false); return; }
+    setCategories(categories.map((cat) =>
+      cat.id === category.id ? { ...cat, name: nameInput.trim() } : cat));
     setEditingName(false);
   }, [nameInput, category.id, categories, setCategories]);
 
-  // Delete
   const deleteCat = useCallback(() => {
     if (category.isSystem) return;
-    const remaining = categories.filter((c) => c.id !== category.id);
-    setCategories(remaining);
+    setCategories(categories.filter((c) => c.id !== category.id));
   }, [category, categories, setCategories]);
-
-  // Drop on this section — move tool from another category
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setDropOver(false);
-
-      const toolId = e.dataTransfer.getData("text/plain");
-      if (!toolId || category.id === "__all__") return; // no-op on __all__
-
-      // Find which category currently contains this tool
-      const sourceCat = categories.find((cat) =>
-        cat.toolIds.includes(toolId)
-      );
-      if (!sourceCat) return;
-      if (sourceCat.id === category.id) return; // same category, no-op
-
-      // Move: remove from source (unless __all__), add to target
-      const updated = categories.map((cat) => {
-        if (cat.id === sourceCat.id && !cat.isSystem) {
-          return {
-            ...cat,
-            toolIds: cat.toolIds.filter((id) => id !== toolId),
-          };
-        }
-        if (cat.id === category.id) {
-          return { ...cat, toolIds: [...cat.toolIds, toolId] };
-        }
-        return cat;
-      });
-      setCategories(updated);
-    },
-    [category.id, categories, setCategories]
-  );
-
-  // Allow drop by preventing default on dragover
-  const allowDrop = useCallback((e: React.DragEvent) => {
-    if (!editMode) return;
-    e.preventDefault();
-    e.stopPropagation();
-    e.dataTransfer.dropEffect = "move";
-  }, [editMode]);
-
-  // Within-category reorder
-  const handleReorder = useCallback(
-    (from: number, to: number) => {
-      if (category.id === "__all__" || category.isSystem) return;
-      const ids = [...category.toolIds];
-      ids.splice(from, 1);
-      ids.splice(to, 0, category.toolIds[from]);
-      const updated = categories.map((cat) =>
-        cat.id === category.id ? { ...cat, toolIds: ids } : cat
-      );
-      setCategories(updated);
-    },
-    [category, categories, setCategories]
-  );
 
   return (
     <div
-      className={`cat-section${dropOver ? " drop-target" : ""}`}
-      onDragOver={allowDrop}
-      onDragEnter={editMode ? () => setDropOver(true) : undefined}
-      onDragLeave={editMode ? () => setDropOver(false) : undefined}
-      onDrop={editMode ? handleDrop : undefined}
+      className={`cat-section${isDropTarget ? " drop-target" : ""}`}
+      data-cat-id={category.id}
     >
-      {/* Header */}
-      <div
-        className="cat-header"
-        onClick={onToggle}
-        onDragOver={allowDrop}
-        onDrop={editMode ? handleDrop : undefined}
-      >
+      <div className="cat-header" onClick={onToggle}>
         <span className="cat-arrow">{collapsed ? "▶" : "▼"}</span>
-        {category.isSystem && (
-          <span className="cat-lock" title="系统分类，不可删除">🔒</span>
-        )}
+        {category.isSystem && <span className="cat-lock" title="系统分类，不可删除">🔒</span>}
         {editingName ? (
-          <input
-            ref={inputRef}
-            className="cat-name-input"
-            value={nameInput}
+          <input ref={inputRef} className="cat-name-input" value={nameInput}
             onChange={(e) => setNameInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") confirmRename();
-              if (e.key === "Escape") setEditingName(false);
-            }}
-            onBlur={confirmRename}
-            onClick={(e) => e.stopPropagation()}
-          />
+            onKeyDown={(e) => { if (e.key === "Enter") confirmRename(); if (e.key === "Escape") setEditingName(false); }}
+            onBlur={confirmRename} onClick={(e) => e.stopPropagation()} />
         ) : (
           <span className="cat-name">{category.name}</span>
         )}
         {editMode && !category.isSystem && !editingName && (
           <span className="cat-header-actions">
-            <button
-              className="cat-action-btn"
-              title="重命名"
-              onClick={(e) => {
-                e.stopPropagation();
-                startRename();
-              }}
-            >
-              ✏️
-            </button>
-            <button
-              className="cat-action-btn danger"
-              title="删除"
-              onClick={(e) => {
-                e.stopPropagation();
-                deleteCat();
-              }}
-            >
-              🗑️
-            </button>
+            <button className="cat-action-btn" title="重命名"
+              onClick={(e) => { e.stopPropagation(); startRename(); }}>✏️</button>
+            <button className="cat-action-btn danger" title="删除"
+              onClick={(e) => { e.stopPropagation(); deleteCat(); }}>🗑️</button>
           </span>
         )}
       </div>
 
-      {/* Tools grid (when expanded) */}
       {!collapsed && (
-        <div
-          className="cat-body"
-          onDragOver={allowDrop}
-          onDrop={editMode ? handleDrop : undefined}
-        >
+        <div className="cat-body">
           {tools.length === 0 ? (
-            <div
-              className="cat-empty"
-              onDragOver={allowDrop}
-              onDrop={editMode ? handleDrop : undefined}
-            >
+            <div className="cat-empty">
               <span className="cat-empty-icon">📦</span>
               <span>拖拽工具到此处</span>
             </div>
           ) : (
             <div className="cat-tools">
-              {tools.map((tool, index) => (
+              {tools.map((tool) => (
                 <ToolCard
                   key={tool.id}
                   tool={tool}
                   isActive={activeTool === tool.id}
                   editMode={editMode}
-                  index={index}
+                  isDragging={dragToolId === tool.id}
                   onSelect={(id) => setActiveTool(id)}
-                  onDragStart={() => {}}
-                  onDragOver={() => {}}
-                  onDrop={() => handleReorder(index, index)}
-                  onDragEnd={() => {}}
+                  onDragStart={onDragStart}
                 />
               ))}
             </div>
