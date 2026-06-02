@@ -18,3 +18,15 @@ export function buildDefaultCategories(): ToolCategory[] {
     },
   ];
 }
+
+/** Merge __all__ category toolIds with current registry */
+export function mergeAllTools(existingToolIds: string[]): string[] {
+  const registryIds = new Set(gridTools.map((t) => t.id));
+  // Keep user-added tools that are still in registry
+  const existing = existingToolIds.filter((id) => registryIds.has(id));
+  // Add new registry tools not yet in the list
+  const newTools = gridTools
+    .filter((t) => !existingToolIds.includes(t.id))
+    .map((t) => t.id);
+  return [...existing, ...newTools];
+}
