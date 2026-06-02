@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { getConfig, setConfig as ipcSetConfig, resetConfig } from "../lib/ipc";
 import type { DeskPalConfig } from "../types";
 import { useStore } from "../store";
-import { ArrowLeft, Save, RotateCcw } from "lucide-react";
+import { Save, RotateCcw } from "lucide-react";
 
 type ConfigKey = keyof DeskPalConfig;
 
@@ -78,7 +78,6 @@ const THEME_OPTIONS = [
 ];
 
 export function SettingsPanel() {
-  const setActiveTool = useStore((s) => s.setActiveTool);
   const [config, setConfig] = useState<DeskPalConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -132,16 +131,9 @@ export function SettingsPanel() {
     }
   };
 
-  const handleBack = () => {
-    setActiveTool(null);
-  };
-
   if (loading) {
     return (
       <div style={styles.container}>
-        <div style={styles.header}>
-          <span style={styles.title}>设置</span>
-        </div>
         <div style={styles.loadingText}>加载中...</div>
       </div>
     );
@@ -150,9 +142,6 @@ export function SettingsPanel() {
   if (!config) {
     return (
       <div style={styles.container}>
-        <div style={styles.header}>
-          <span style={styles.title}>设置</span>
-        </div>
         <div style={styles.loadingText}>无法加载配置</div>
       </div>
     );
@@ -160,11 +149,30 @@ export function SettingsPanel() {
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>
-        <span style={styles.title}>设置</span>
-      </div>
-
       <div style={styles.body}>
+        <div style={styles.actionBar}>
+          <button
+            onClick={handleReset}
+            style={styles.resetBtn}
+            title="恢复默认"
+          >
+            <RotateCcw size={14} />
+            <span>恢复默认</span>
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            style={{
+              ...styles.saveBtn,
+              ...(saved ? styles.saveBtnSuccess : {}),
+              ...(saving ? styles.saveBtnDisabled : {}),
+            }}
+          >
+            <Save size={14} />
+            <span>{saving ? "保存中..." : saved ? "已保存" : "保存"}</span>
+          </button>
+        </div>
+
         {/* 🖥 窗口 */}
         <SectionCard icon="🖥" title="窗口">
           <SettingRow
@@ -328,35 +336,6 @@ export function SettingsPanel() {
           </SettingRow>
         </SectionCard>
       </div>
-
-      <div style={styles.footer}>
-        <button onClick={handleBack} style={styles.backBtn}>
-          <ArrowLeft size={14} />
-          <span>返回</span>
-        </button>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <button
-            onClick={handleReset}
-            style={styles.resetBtn}
-            title="恢复默认"
-          >
-            <RotateCcw size={14} />
-            <span>恢复默认</span>
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            style={{
-              ...styles.saveBtn,
-              ...(saved ? styles.saveBtnSuccess : {}),
-              ...(saving ? styles.saveBtnDisabled : {}),
-            }}
-          >
-            <Save size={14} />
-            <span>{saving ? "保存中..." : saved ? "已保存" : "保存"}</span>
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
@@ -367,18 +346,6 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
-  },
-  header: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "10px 12px",
-    borderBottom: "1px solid var(--divider)",
-  },
-  title: {
-    fontSize: 14,
-    fontWeight: 600,
-    color: "var(--text-primary)",
   },
   body: {
     flex: 1,
@@ -507,43 +474,16 @@ const styles: Record<string, React.CSSProperties> = {
     outline: "none",
     width: 90,
   },
-  footer: {
+  actionBar: {
     display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "8px 12px",
-    borderTop: "1px solid var(--divider)",
+    justifyContent: "flex-end",
     gap: 8,
-  },
-  backBtn: {
-    display: "flex",
     alignItems: "center",
-    gap: 6,
-    height: 30,
-    padding: "0 12px",
-    border: "1px solid var(--btn-border)",
-    background: "var(--btn-bg)",
-    color: "var(--text-primary)",
-    borderRadius: 4,
-    fontSize: 12,
-    cursor: "pointer",
-    transition: "all 100ms ease",
+    paddingBottom: 8,
+    borderBottom: "1px solid var(--divider)",
+    marginBottom: 8,
   },
   resetBtn: {
-    display: "flex",
-    alignItems: "center",
-    gap: 6,
-    height: 30,
-    padding: "0 12px",
-    border: "1px solid var(--btn-border)",
-    background: "var(--btn-bg)",
-    color: "var(--warning)",
-    borderRadius: 4,
-    fontSize: 12,
-    cursor: "pointer",
-    transition: "all 100ms ease",
-  },
-  saveBtn: {
     display: "flex",
     alignItems: "center",
     gap: 6,
