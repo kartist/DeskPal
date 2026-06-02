@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from "react";
+import { Pencil, Trash2 } from "lucide-react";
 import { useStore } from "../../store";
 import { gridTools } from "../../lib/registry";
 import { mergeAllTools } from "../../lib/categories";
@@ -71,9 +72,9 @@ export default function CategorySection({
         {editMode && !category.isSystem && !editingName && (
           <span className="cat-header-actions">
             <button className="cat-action-btn" title="重命名"
-              onClick={(e) => { e.stopPropagation(); startRename(); }}>✏️</button>
+              onClick={(e) => { e.stopPropagation(); startRename(); }}><Pencil size={14} /></button>
             <button className="cat-action-btn danger" title="删除"
-              onClick={(e) => { e.stopPropagation(); deleteCat(); }}>🗑️</button>
+              onClick={(e) => { e.stopPropagation(); deleteCat(); }}><Trash2 size={14} /></button>
           </span>
         )}
       </div>
