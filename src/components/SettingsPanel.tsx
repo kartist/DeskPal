@@ -59,11 +59,6 @@ const THEME_OPTIONS = [
   { value: "system", label: "跟随系统" },
 ];
 
-const DOCK_OPTIONS = [
-  { value: "right", label: "右侧" },
-  { value: "left", label: "左侧" },
-];
-
 export function SettingsPanel() {
   const setActiveTool = useStore((s) => s.setActiveTool);
   const [config, setConfig] = useState<DeskPalConfig | null>(null);
@@ -174,20 +169,6 @@ export function SettingsPanel() {
           </select>
         </SettingRow>
 
-        <SettingRow label="停靠位置">
-          <select
-            value={config.dock_position}
-            onChange={(e) => updateField("dock_position", e.target.value)}
-            style={styles.select}
-          >
-            {DOCK_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </SettingRow>
-
         <SettingRow
           label="收缩条宽度 (px)"
           description={`${config.dormant_width}px`}
@@ -219,20 +200,6 @@ export function SettingsPanel() {
               updateField("panel_width", Number(e.target.value))
             }
             style={styles.slider}
-          />
-        </SettingRow>
-
-        <SettingRow label="智能推荐">
-          <Toggle
-            value={config.smart_recommend}
-            onChange={(v) => updateField("smart_recommend", v)}
-          />
-        </SettingRow>
-
-        <SettingRow label="实时时间戳">
-          <Toggle
-            value={config.live_timestamp}
-            onChange={(v) => updateField("live_timestamp", v)}
           />
         </SettingRow>
 

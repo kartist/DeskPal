@@ -15,14 +15,13 @@ export interface DeskPalConfig {
   auto_hide_enabled: boolean;
   auto_hide_delay_ms: number;
   theme: string;
-  dock_position: string;
   dormant_width: number;
   panel_width: number;
-  panel_height_min: number;
-  panel_height_max: number;
-  smart_recommend: boolean;
-  live_timestamp: boolean;
   dblclick_threshold_ms: number;
+  dormant_bar_bg: string;         // hex color e.g. "#1C2333"
+  dormant_bar_text_color: string; // hex color e.g. "#58A6FF"
+  dormant_bar_label: string;      // text shown in dormant bar e.g. "DESKPAL"
+  double_click_pin_enabled: boolean;
 }
 
 /** 工具分类 */
