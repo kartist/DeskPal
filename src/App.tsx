@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useStore } from "./store";
-import { togglePanel, triggerAutoHide, triggerHoverActivate } from "./lib/ipc";
+import { togglePanel, triggerAutoHide, triggerHoverActivate, getConfig } from "./lib/ipc";
 import { listenToEvents } from "./lib/events";
 import TitleBar from "./components/TitleBar";
 import ToolPanel from "./components/ToolPanel";
@@ -11,22 +11,30 @@ import Toast from "./components/Toast";
 import "./styles/global.css";
 
 function App() {
-  const { windowMode, resolvedTheme, activeTool } = useStore();
+  const { windowMode, resolvedTheme, activeTool, config } = useStore();
   const autoHideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // 事件监听（窗口状态同步等）
   useEffect(() => {
+    // 启动时加载配置
+    getConfig()
+      .then((cfg) => useStore.getState().setConfig(cfg))
+      .catch((e) => console.error("Failed to load config:", e));
+
     const unlisten = listenToEvents();
     return unlisten;
   }, []);
 
-  // Auto-hide: 当显示收缩态时启动 2s 定时器，鼠标移入取消，移出重启
+  // Auto-hide: 当显示收缩态时启动定时器，鼠标移入取消，移出重启
   const startAutoHideTimer = useCallback(() => {
+    const cfg = useStore.getState().config;
+    if (!cfg?.auto_hide_enabled) return;  // 禁用时直接跳过
+
     if (autoHideTimer.current) clearTimeout(autoHideTimer.current);
     autoHideTimer.current = setTimeout(() => {
       triggerAutoHide().catch(() => {});
       autoHideTimer.current = null;
-    }, 2000);
+    }, cfg.auto_hide_delay_ms ?? 2000);
   }, []);
 
   const cancelAutoHideTimer = useCallback(() => {
@@ -43,6 +51,14 @@ function App() {
       cancelAutoHideTimer();
     }
   }, [windowMode, startAutoHideTimer, cancelAutoHideTimer]);
+
+  // 配置变更时更新收缩态 CSS 变量
+  useEffect(() => {
+    if (!config) return;
+    const root = document.documentElement;
+    root.style.setProperty('--dormant-bar-bg', config.dormant_bar_bg || '#1C2333');
+    root.style.setProperty('--dormant-bar-text', config.dormant_bar_text_color || '#58A6FF');
+  }, [config]);
 
   const handleDormantMouseEnter = useCallback(() => {
     cancelAutoHideTimer();
@@ -78,7 +94,7 @@ function App() {
           onMouseLeave={handleDormantMouseLeave}
         >
           <div className="dormant-bar" onClick={handleToggle}>
-            <span className="dormant-bar-label">DESKPAL</span>
+            <span className="dormant-bar-label">{config?.dormant_bar_label || "DESKPAL"}</span>
           </div>
         </div>
       )}

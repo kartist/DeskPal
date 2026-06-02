@@ -55,8 +55,16 @@ export default function TitleBar() {
     if (e.button !== 0) return;
     if ((e.target as HTMLElement).closest('button')) return;
 
-    const now = Date.now();
     const cfg = useStore.getState().config;
+
+    if (!cfg?.double_click_pin_enabled) {
+      // 双击固定已禁用，进入拖拽模式
+      mouseDownRef.current = true;
+      dragStartedRef.current = false;
+      return;
+    }
+
+    const now = Date.now();
     const threshold = cfg?.dblclick_threshold_ms ?? 300;
     if (now - lastMouseUpRef.current < threshold) {
       // 短时间内 mouseup → mousedown → 双击判定
