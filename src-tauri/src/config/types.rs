@@ -15,10 +15,18 @@ pub struct DeskPalConfig {
     pub panel_width: f64,
     #[serde(default = "default_dblclick_threshold_ms")]
     pub dblclick_threshold_ms: u64,
-    #[serde(default = "default_dormant_bar_bg")]
-    pub dormant_bar_bg: String,
-    #[serde(default = "default_dormant_bar_text_color")]
-    pub dormant_bar_text_color: String,
+    #[serde(default = "default_dormant_bar_bg_dark")]
+    pub dormant_bar_bg_dark: String,
+    #[serde(default = "default_dormant_bar_bg_light")]
+    pub dormant_bar_bg_light: String,
+    #[serde(default = "default_dormant_bar_text_color_dark")]
+    pub dormant_bar_text_color_dark: String,
+    #[serde(default = "default_dormant_bar_text_color_light")]
+    pub dormant_bar_text_color_light: String,
+    #[serde(default = "default_dormant_bar_hover_bg_dark")]
+    pub dormant_bar_hover_bg_dark: String,
+    #[serde(default = "default_dormant_bar_hover_bg_light")]
+    pub dormant_bar_hover_bg_light: String,
     #[serde(default = "default_dormant_bar_label")]
     pub dormant_bar_label: String,
     #[serde(default = "default_dormant_bar_font_size")]
@@ -54,12 +62,28 @@ fn default_dblclick_threshold_ms() -> u64 {
     300
 }
 #[allow(dead_code)]
-fn default_dormant_bar_bg() -> String {
+fn default_dormant_bar_bg_dark() -> String {
     "#1C2333".to_string()
 }
 #[allow(dead_code)]
-fn default_dormant_bar_text_color() -> String {
+fn default_dormant_bar_bg_light() -> String {
+    "#F6F8FA".to_string()
+}
+#[allow(dead_code)]
+fn default_dormant_bar_text_color_dark() -> String {
     "#58A6FF".to_string()
+}
+#[allow(dead_code)]
+fn default_dormant_bar_text_color_light() -> String {
+    "#0969DA".to_string()
+}
+#[allow(dead_code)]
+fn default_dormant_bar_hover_bg_dark() -> String {
+    "#262D3D".to_string()
+}
+#[allow(dead_code)]
+fn default_dormant_bar_hover_bg_light() -> String {
+    "#EAEEF2".to_string()
 }
 #[allow(dead_code)]
 fn default_dormant_bar_label() -> String {
@@ -83,8 +107,12 @@ impl Default for DeskPalConfig {
             dormant_width: default_dormant_width(),
             panel_width: default_panel_width(),
             dblclick_threshold_ms: default_dblclick_threshold_ms(),
-            dormant_bar_bg: default_dormant_bar_bg(),
-            dormant_bar_text_color: default_dormant_bar_text_color(),
+            dormant_bar_bg_dark: default_dormant_bar_bg_dark(),
+            dormant_bar_bg_light: default_dormant_bar_bg_light(),
+            dormant_bar_text_color_dark: default_dormant_bar_text_color_dark(),
+            dormant_bar_text_color_light: default_dormant_bar_text_color_light(),
+            dormant_bar_hover_bg_dark: default_dormant_bar_hover_bg_dark(),
+            dormant_bar_hover_bg_light: default_dormant_bar_hover_bg_light(),
             dormant_bar_label: default_dormant_bar_label(),
             dormant_bar_font_size: default_dormant_bar_font_size(),
             double_click_pin_enabled: default_double_click_pin_enabled(),

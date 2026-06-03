@@ -52,14 +52,16 @@ function App() {
     }
   }, [windowMode, startAutoHideTimer, cancelAutoHideTimer]);
 
-  // 配置变更时更新收缩态 CSS 变量
+  // 配置变更时更新收缩态 CSS 变量（按 resolvedTheme 选择暗/亮值）
   useEffect(() => {
     if (!config) return;
     const root = document.documentElement;
-    root.style.setProperty('--dormant-bar-bg', config.dormant_bar_bg || '#1C2333');
-    root.style.setProperty('--dormant-bar-text', config.dormant_bar_text_color || '#58A6FF');
+    const isDark = resolvedTheme === "dark";
+    root.style.setProperty('--dormant-bar-bg', isDark ? config.dormant_bar_bg_dark : config.dormant_bar_bg_light);
+    root.style.setProperty('--dormant-bar-text', isDark ? config.dormant_bar_text_color_dark : config.dormant_bar_text_color_light);
+    root.style.setProperty('--dormant-bar-hover', isDark ? config.dormant_bar_hover_bg_dark : config.dormant_bar_hover_bg_light);
     root.style.setProperty('--dormant-bar-font-size', `${config.dormant_bar_font_size ?? 13}px`);
-  }, [config]);
+  }, [config, resolvedTheme]);
 
   const handleDormantMouseEnter = useCallback(() => {
     cancelAutoHideTimer();

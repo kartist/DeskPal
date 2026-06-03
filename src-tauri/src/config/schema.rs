@@ -100,16 +100,48 @@ pub fn get_fields() -> Vec<ConfigField> {
             default: 300.0,
         },
         ConfigField {
-            key: "dormant_bar_bg",
-            label: "收缩条背景色",
+            key: "dormant_bar_bg_dark",
+            label: "收缩条背景色(深色主题)",
             field_type: ConfigFieldType::Input {
                 placeholder: "#RRGGBB",
             },
             default: 0.0,
         },
         ConfigField {
-            key: "dormant_bar_text_color",
-            label: "收缩条文字色",
+            key: "dormant_bar_bg_light",
+            label: "收缩条背景色(浅色主题)",
+            field_type: ConfigFieldType::Input {
+                placeholder: "#RRGGBB",
+            },
+            default: 0.0,
+        },
+        ConfigField {
+            key: "dormant_bar_text_color_dark",
+            label: "收缩条文字色(深色主题)",
+            field_type: ConfigFieldType::Input {
+                placeholder: "#RRGGBB",
+            },
+            default: 0.0,
+        },
+        ConfigField {
+            key: "dormant_bar_text_color_light",
+            label: "收缩条文字色(浅色主题)",
+            field_type: ConfigFieldType::Input {
+                placeholder: "#RRGGBB",
+            },
+            default: 0.0,
+        },
+        ConfigField {
+            key: "dormant_bar_hover_bg_dark",
+            label: "收缩条悬停色(深色主题)",
+            field_type: ConfigFieldType::Input {
+                placeholder: "#RRGGBB",
+            },
+            default: 0.0,
+        },
+        ConfigField {
+            key: "dormant_bar_hover_bg_light",
+            label: "收缩条悬停色(浅色主题)",
             field_type: ConfigFieldType::Input {
                 placeholder: "#RRGGBB",
             },

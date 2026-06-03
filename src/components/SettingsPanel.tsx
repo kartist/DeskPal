@@ -194,33 +194,91 @@ export function SettingsPanel() {
             </select>
           </SettingRow>
 
-          <SettingRow label="收缩态背景色">
+          <SettingRow label="收缩态背景色(深色)">
             <div style={styles.colorRow}>
               <input
                 type="color"
-                value={config.dormant_bar_bg}
+                value={config.dormant_bar_bg_dark}
                 onChange={(e) =>
-                  updateField("dormant_bar_bg", e.target.value)
+                  updateField("dormant_bar_bg_dark", e.target.value)
                 }
                 style={styles.colorPicker}
               />
-              <span style={styles.colorValue}>{config.dormant_bar_bg}</span>
+              <span style={styles.colorValue}>{config.dormant_bar_bg_dark}</span>
             </div>
           </SettingRow>
 
-          <SettingRow label="收缩态文字色">
+          <SettingRow label="收缩态背景色(浅色)">
             <div style={styles.colorRow}>
               <input
                 type="color"
-                value={config.dormant_bar_text_color}
+                value={config.dormant_bar_bg_light}
                 onChange={(e) =>
-                  updateField("dormant_bar_text_color", e.target.value)
+                  updateField("dormant_bar_bg_light", e.target.value)
+                }
+                style={styles.colorPicker}
+              />
+              <span style={styles.colorValue}>{config.dormant_bar_bg_light}</span>
+            </div>
+          </SettingRow>
+
+          <SettingRow label="收缩态文字色(深色)">
+            <div style={styles.colorRow}>
+              <input
+                type="color"
+                value={config.dormant_bar_text_color_dark}
+                onChange={(e) =>
+                  updateField("dormant_bar_text_color_dark", e.target.value)
                 }
                 style={styles.colorPicker}
               />
               <span style={styles.colorValue}>
-                {config.dormant_bar_text_color}
+                {config.dormant_bar_text_color_dark}
               </span>
+            </div>
+          </SettingRow>
+
+          <SettingRow label="收缩态文字色(浅色)">
+            <div style={styles.colorRow}>
+              <input
+                type="color"
+                value={config.dormant_bar_text_color_light}
+                onChange={(e) =>
+                  updateField("dormant_bar_text_color_light", e.target.value)
+                }
+                style={styles.colorPicker}
+              />
+              <span style={styles.colorValue}>
+                {config.dormant_bar_text_color_light}
+              </span>
+            </div>
+          </SettingRow>
+
+          <SettingRow label="收缩态悬停色(深色)">
+            <div style={styles.colorRow}>
+              <input
+                type="color"
+                value={config.dormant_bar_hover_bg_dark}
+                onChange={(e) =>
+                  updateField("dormant_bar_hover_bg_dark", e.target.value)
+                }
+                style={styles.colorPicker}
+              />
+              <span style={styles.colorValue}>{config.dormant_bar_hover_bg_dark}</span>
+            </div>
+          </SettingRow>
+
+          <SettingRow label="收缩态悬停色(浅色)">
+            <div style={styles.colorRow}>
+              <input
+                type="color"
+                value={config.dormant_bar_hover_bg_light}
+                onChange={(e) =>
+                  updateField("dormant_bar_hover_bg_light", e.target.value)
+                }
+                style={styles.colorPicker}
+              />
+              <span style={styles.colorValue}>{config.dormant_bar_hover_bg_light}</span>
             </div>
           </SettingRow>
 

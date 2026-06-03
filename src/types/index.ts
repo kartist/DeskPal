@@ -18,10 +18,14 @@ export interface DeskPalConfig {
   dormant_width: number;
   panel_width: number;
   dblclick_threshold_ms: number;
-  dormant_bar_bg: string;         // hex color e.g. "#1C2333"
-  dormant_bar_text_color: string; // hex color e.g. "#58A6FF"
-  dormant_bar_label: string;      // text shown in dormant bar e.g. "DESKPAL"
-  dormant_bar_font_size: number;  // font size for dormant bar label
+  dormant_bar_bg_dark: string;         // hex e.g. "#1C2333"
+  dormant_bar_bg_light: string;        // hex e.g. "#F6F8FA"
+  dormant_bar_text_color_dark: string; // hex e.g. "#58A6FF"
+  dormant_bar_text_color_light: string;// hex e.g. "#0969DA"
+  dormant_bar_hover_bg_dark: string;   // hex e.g. "#262D3D"
+  dormant_bar_hover_bg_light: string;  // hex e.g. "#EAEEF2"
+  dormant_bar_label: string;           // text shown in dormant bar
+  dormant_bar_font_size: number;       // font size for dormant bar label
   double_click_pin_enabled: boolean;
 }
 
