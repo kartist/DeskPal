@@ -267,17 +267,6 @@ export default function JsonTool() {
     editorRef.current?.getAction("editor.unfoldAll")?.run();
   }, []);
 
-  const handleExpandToLevel = useCallback((level: number) => {
-    const editor = editorRef.current;
-    if (!editor) return;
-    // 先全部展开
-    editor.getAction("editor.unfoldAll")?.run();
-    // 折叠 N+1 层及以上，实现"展开到第 N 层"
-    for (let i = level + 1; i <= 7; i++) {
-      editor.getAction(`editor.foldLevel${i}`)?.run();
-    }
-  }, []);
-
   // Monaco 注入 JSON 折叠提示的自定义语言配置
   const handleBeforeMount: BeforeMount = useCallback((_monaco) => {
     // 注册 JSON 语言的自定义折叠规则（默认就有，这里是确保）
@@ -368,23 +357,7 @@ export default function JsonTool() {
         <button className="action-btn" onClick={handleUnfoldAll} type="button">
           ▾ 全部展开
         </button>
-        <span className="j-btn-sep" />
-        <span className="j-fold-level-label">展开到</span>
-        <select
-          className="tool-select j-fold-level"
-          defaultValue=""
-          onChange={(e) => {
-            const v = e.target.value;
-            if (v) handleExpandToLevel(parseInt(v, 10));
-          }}
-        >
-          <option value="" disabled>层级…</option>
-          <option value="1">第 1 层</option>
-          <option value="2">第 2 层</option>
-          <option value="3">第 3 层</option>
-          <option value="4">第 4 层</option>
-          <option value="5">第 5 层</option>
-        </select>
+
         <span className="j-btn-sep" />
         <button className="action-btn" onClick={handleFormat} type="button">
           格式化

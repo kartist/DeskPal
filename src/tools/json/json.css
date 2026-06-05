@@ -85,18 +85,6 @@
   flex-shrink: 0;
 }
 
-/* 展开层级标签 + 下拉 */
-.j-fold-level-label {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-right: 0;
-  flex-shrink: 0;
-}
-.j-fold-level {
-  width: auto;
-  min-width: 80px;
-}
-
 /* 状态栏 */
 .j-status {
   font-size: 11px;
