@@ -4,8 +4,12 @@ import { typeLists } from "../text/nameConvert";
 import type { TypeLists } from "../text/nameConvert";
 import { useToast } from "../../store/toastStore";
 import { useStore } from "../../store";
-import Editor, { OnMount, BeforeMount } from "@monaco-editor/react";
+import Editor, { OnMount, BeforeMount, loader } from "@monaco-editor/react";
+import * as monaco from "monaco-editor";
 import "./json.css";
+
+// 使用本地 monaco-editor 包，不走 CDN（桌面应用需要离线可用）
+loader.config({ monaco });
 
 export default function JsonTool() {
   const setJsonInput = useStore((s) => s.setJsonInput);
