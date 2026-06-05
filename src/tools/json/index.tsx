@@ -259,6 +259,14 @@ export default function JsonTool() {
     editorRef.current = editor;
   }, []);
 
+  const handleFoldAll = useCallback(() => {
+    editorRef.current?.getAction("editor.foldAll")?.run();
+  }, []);
+
+  const handleUnfoldAll = useCallback(() => {
+    editorRef.current?.getAction("editor.unfoldAll")?.run();
+  }, []);
+
   // Monaco 注入 JSON 折叠提示的自定义语言配置
   const handleBeforeMount: BeforeMount = useCallback((_monaco) => {
     // 注册 JSON 语言的自定义折叠规则（默认就有，这里是确保）
@@ -341,8 +349,15 @@ export default function JsonTool() {
         </div>
       )}
 
-      {/* 按钮组：第一行 — 常用操作 */}
+      {/* 按钮组：第一行 — 折叠/展开 + 常用操作 */}
       <div className="j-btn-group">
+        <button className="action-btn" onClick={handleFoldAll} type="button">
+          ▸ 全部折叠
+        </button>
+        <button className="action-btn" onClick={handleUnfoldAll} type="button">
+          ▾ 全部展开
+        </button>
+        <span className="j-btn-sep" />
         <button className="action-btn" onClick={handleFormat} type="button">
           格式化
         </button>
