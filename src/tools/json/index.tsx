@@ -270,9 +270,12 @@ export default function JsonTool() {
   const handleExpandToLevel = useCallback((level: number) => {
     const editor = editorRef.current;
     if (!editor) return;
-    // 先全部展开，再折叠超出目标层级的部分
+    // 先全部展开
     editor.getAction("editor.unfoldAll")?.run();
-    editor.getAction("editor.foldAll")?.run({ levels: level });
+    // 折叠 N+1 层及以上，实现"展开到第 N 层"
+    for (let i = level + 1; i <= 7; i++) {
+      editor.getAction(`editor.foldLevel${i}`)?.run();
+    }
   }, []);
 
   // Monaco 注入 JSON 折叠提示的自定义语言配置
