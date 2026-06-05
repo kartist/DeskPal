@@ -4,6 +4,7 @@ import { typeLists } from "../text/nameConvert";
 import type { TypeLists } from "../text/nameConvert";
 import { useToast } from "../../store/toastStore";
 import { useStore } from "../../store";
+import Editor, { OnMount, BeforeMount } from "@monaco-editor/react";
 import "./json.css";
 
 export default function JsonTool() {
@@ -15,6 +16,8 @@ export default function JsonTool() {
   const [jsonpath, setJsonpath] = useState("");
   const [jsonpathResult, setJsonpathResult] = useState<string | null>(null);
   const [renameType, setRenameType] = useState<TypeLists>("camelCase");
+  const resolvedTheme = useStore((s) => s.resolvedTheme);
+  const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
   const resultRef = useRef<HTMLTextAreaElement>(null);
   const inited = useRef(false);
 
@@ -81,7 +84,7 @@ export default function JsonTool() {
     }
   }, []);
 
-  // 输入防抖校验
+  // 输入防抖校验（仅 textarea 路径用，Monaco 路径直接调用 updateResult）
   useEffect(() => {
     const timer = setTimeout(() => {
       updateResult(input);
@@ -99,7 +102,7 @@ export default function JsonTool() {
     setJsonpathInput(jsonpath);
   }, [jsonpath, setJsonpathInput]);
 
-  // JSONPath 防抖查询 — 改用 inline JSON.parse
+  // JSONPath 防抖查询
   useEffect(() => {
     if (!jsonpath.trim() || !result?.valid) {
       setJsonpathResult(null);
@@ -181,7 +184,8 @@ export default function JsonTool() {
   const handleFormat = useCallback(async () => {
     if (!input.trim()) return;
     try {
-      setInput(await ctoolJson.beautify(input, {tab: 2}));
+      const formatted = await ctoolJson.beautify(input, {tab: 2});
+      setInput(formatted);
     } catch {}
   }, [input]);
 
@@ -239,13 +243,6 @@ export default function JsonTool() {
     setJsonpathResult(null);
   }, []);
 
-  const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setInput(e.target.value);
-    },
-    []
-  );
-
   const handleJsonpathChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setJsonpath(e.target.value);
@@ -253,9 +250,29 @@ export default function JsonTool() {
     []
   );
 
+  // Monaco Editor 挂载后保存实例引用
+  const handleEditorMount: OnMount = useCallback((editor) => {
+    editorRef.current = editor;
+  }, []);
+
+  // Monaco 注入 JSON 折叠提示的自定义语言配置
+  const handleBeforeMount: BeforeMount = useCallback((_monaco) => {
+    // 注册 JSON 语言的自定义折叠规则（默认就有，这里是确保）
+    _monaco.languages.registerFoldingRangeProvider("json", {
+      provideFoldingRanges: () => {
+        // 让 Monaco 使用默认的 indent 和语法折叠
+        return [];
+      },
+    });
+  }, []);
+
+  const handleEditorChange = useCallback((value: string | undefined) => {
+    setInput(value ?? "");
+  }, []);
+
   return (
     <div className="tool-panel j-container">
-      {/* 主体区域：输入框 + JSONPath 结果 */}
+      {/* 主体区域 */}
       <div className="j-body">
         {/* JSONPath 结果区 — 仅当 jsonpath 有内容时显示 */}
         {hasJsonpath && (
@@ -273,13 +290,44 @@ export default function JsonTool() {
           />
         )}
 
-        {/* 主输入框 — 默认占满，有 jsonpath 时压缩至 30% */}
-        <textarea
-          className={`j-textarea${hasJsonpath ? " compact" : ""}`}
-          placeholder="粘贴 JSON 文本…"
-          value={input}
-          onChange={handleInputChange}
-        />
+        {/* Monaco 编辑器 — 替代 textarea */}
+        <div className={`j-monaco-wrap${hasJsonpath ? " compact" : ""}`}>
+          <Editor
+            defaultLanguage="json"
+            theme={resolvedTheme === "dark" ? "vs-dark" : "vs"}
+            value={input}
+            onChange={handleEditorChange}
+            onMount={handleEditorMount}
+            beforeMount={handleBeforeMount}
+            loading={
+              <div className="j-monaco-loading">加载编辑器…</div>
+            }
+            options={{
+              fontSize: 13,
+              fontFamily: "inherit",
+              lineNumbers: "on",
+              minimap: { enabled: false },
+              folding: true,
+              foldingStrategy: "indentation",
+              automaticLayout: true,
+              scrollBeyondLastLine: false,
+              wordWrap: "on",
+              tabSize: 2,
+              renderWhitespace: "selection",
+              bracketPairColorization: { enabled: true },
+              matchBrackets: "always",
+              overviewRulerLanes: 0,
+              overviewRulerBorder: false,
+              scrollbar: {
+                verticalScrollbarSize: 8,
+                horizontalScrollbarSize: 8,
+              },
+              padding: { top: 8, bottom: 8 },
+              // JSON 错误提示使用内置的 JSON 诊断
+              // JSON 诊断由 Monaco 内置完成
+            }}
+          />
+        </div>
       </div>
 
       {/* 大型 JSON 提示 */}

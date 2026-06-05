@@ -8,7 +8,7 @@
   padding: 12px;
 }
 
-/* 主体区域 — flex 分配输入框与结果区 */
+/* 主体区域 — flex 分配编辑器与结果区 */
 .j-body {
   flex: 1;
   min-height: 0;
@@ -17,29 +17,28 @@
   gap: 8px;
 }
 
-/* 主输入框 — 默认占满剩余空间，内部滚动 */
-.j-textarea {
-  width: 100%;
+/* Monaco 编辑器容器 */
+.j-monaco-wrap {
   flex: 1;
   min-height: 80px;
-  background: var(--input-bg);
   border: 1px solid var(--input-border);
   border-radius: 6px;
-  padding: 8px 10px;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: var(--input-text);
-  outline: none;
-  resize: none;
-  line-height: 1.5;
-  overflow-y: auto;
+  overflow: hidden;
 }
-.j-textarea:focus { border-color: var(--accent); }
-
-/* 当 JSONPath 有内容时，输入框压缩为 30% */
-.j-textarea.compact {
-  flex: 0 0 30%;
+.j-monaco-wrap.compact {
+  flex: 0 0 40%;
   min-height: 80px;
+}
+
+/* Monaco 加载占位 */
+.j-monaco-loading {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  background: var(--input-bg);
 }
 
 /* JSONPath 结果区 — 只读文本框，内部滚动 */
