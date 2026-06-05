@@ -124,7 +124,7 @@ export default function JsonTool() {
           setJsonpathResult(JSON.stringify(obj, null, 2));
           return;
         }
-        // 简单路径解析：$.a.b[0].c
+        // JSONPath 多值解析：支持 $.a.b[*].c 通配符
         const parts: string[] = [];
         let current = "";
         for (let i = 0; i < expr.length; i++) {
@@ -142,33 +142,53 @@ export default function JsonTool() {
         }
         if (current) parts.push(current);
 
-        let value: unknown = obj;
+        // 多值 walk：从根开始，每步对所有当前值应用路径段
+        let values: unknown[] = [obj];
         for (const part of parts) {
           if (!part) continue;
-          if (part.startsWith("[")) {
-            const idx = parseInt(part.slice(1, -1), 10);
-            if (Array.isArray(value) && !isNaN(idx)) {
-              value = value[idx];
+          const next: unknown[] = [];
+          for (const v of values) {
+            if (part === "[*]") {
+              // 通配符：数组展开所有元素，对象取所有值
+              if (Array.isArray(v)) {
+                next.push(...v);
+              } else if (v && typeof v === "object") {
+                next.push(...Object.values(v));
+              }
+              // 其他类型（string/number 等）→ 跳过
+            } else if (part.startsWith("[")) {
+              // 数字索引 [0], [2] ...
+              const idx = parseInt(part.slice(1, -1), 10);
+              if (Array.isArray(v) && !isNaN(idx) && idx >= 0 && idx < v.length) {
+                next.push(v[idx]);
+              }
+              // 索引越界或非数组 → 跳过
             } else {
-              setJsonpathResult(`错误: 无法访问 ${part}`);
-              return;
-            }
-          } else {
-            if (value && typeof value === "object" && !Array.isArray(value)) {
-              value = (value as Record<string, unknown>)[part];
-            } else {
-              setJsonpathResult(`错误: 键 '${part}' 不存在`);
-              return;
+              // 属性键 .foo
+              if (v && typeof v === "object" && !Array.isArray(v)) {
+                const val = (v as Record<string, unknown>)[part];
+                if (val !== undefined) next.push(val);
+              }
+              // 属性不存在 → 跳过
             }
           }
-          if (value === undefined) {
-            setJsonpathResult(`错误: 路径 ${part} 的值是 undefined`);
+          if (next.length === 0) {
+            setJsonpathResult(`错误: 路径 '${part}' 无匹配结果`);
             return;
           }
+          values = next;
         }
-        setJsonpathResult(
-          typeof value === "string" ? value : JSON.stringify(value, null, 2)
-        );
+
+        if (values.length === 1) {
+          const v = values[0];
+          setJsonpathResult(
+            typeof v === "string" ? v : JSON.stringify(v, null, 2)
+          );
+        } else {
+          setJsonpathResult(
+            JSON.stringify(values, null, 2)
+          );
+        }
       } catch {
         setJsonpathResult(null);
       }
