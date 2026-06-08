@@ -18,6 +18,7 @@ pub struct WindowManager {
     window: WebviewWindow,
     state: WindowState,
     panel_width: f64,
+    #[allow(dead_code)]
     dormant_width: f64,
     /// Dormant 态的当前宽度（动态变化：1px 隐藏 / 36px 正常）
     current_dormant_width: f64,
@@ -105,7 +106,6 @@ impl WindowManager {
     fn execute(&mut self, action: &Action) -> Result<(), Box<dyn std::error::Error>> {
         match action {
             Action::ResizeToExpanded => self.resize_to_expanded(),
-            Action::ResizeToDormant => self.resize_to_dormant(),
             Action::SetDormantWidth(w) => {
                 self.current_dormant_width = *w;
                 self.resize_to_dormant()

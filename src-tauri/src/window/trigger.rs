@@ -2,7 +2,6 @@ use super::manager::WindowState;
 
 #[derive(Debug, Clone)]
 pub enum Action {
-    ResizeToDormant,
     ResizeToExpanded,
     /// 设置 Dormant 态当前宽度（1px 隐藏 / 36px 正常）
     SetDormantWidth(f64),
@@ -21,7 +20,6 @@ pub enum Action {
 pub enum Trigger {
     Toggle,
     Init,
-    DragEnd,
     /// 自动隐藏：Dormant 宽度 36px → 1px
     AutoHide,
     /// 鼠标进入隐藏区：Dormant 宽度 1px → 36px
@@ -72,12 +70,6 @@ impl Trigger {
                 ],
             },
 
-            // ── DragEnd ──
-            (DragEnd, _) => TriggerActions {
-                pre_exit: vec![],
-                transition_to: None,
-                post_enter: vec![SavePosition],
-            },
 
             // ── AutoHide: 36px → 1px（不切换状态）──
             (AutoHide, Dormant) => TriggerActions {

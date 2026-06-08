@@ -56,15 +56,6 @@ impl ConfigLoader {
         Ok(())
     }
 
-    /// Load configuration from disk.
-    ///
-    /// If the file does not exist, the default configuration is returned
-    /// and immediately saved to disk.
-    pub fn load_or_default() -> Result<DeskPalConfig, String> {
-        let loader = Self::new();
-        Ok(loader.config.clone())
-    }
-
     /// Save configuration to disk with atomic write.
     ///
     /// Writes to a `.json.tmp` temporary file first, then renames it to
