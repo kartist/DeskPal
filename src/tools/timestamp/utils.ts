@@ -23,6 +23,8 @@ export type Output = {
   second: string;
   millisecond: string;
   nanosecond: string;
+  unixSecond: string;
+  unixMillisecond: string;
   format?: Format;
   autoFormat?: Format;
   type?: InputType;
@@ -73,6 +75,8 @@ export const transform = (
         second: "",
         millisecond: "",
         nanosecond: "",
+        unixSecond: "",
+        unixMillisecond: "",
       };
     }
 
@@ -102,9 +106,12 @@ export const transform = (
       throw new Error("时间格式错误");
     }
 
+    const unixSecond = time.unix().toString();
+    const unixMillisecond = `${unixSecond}${(decimal + "000").slice(0, 3)}`;
+
     const second =
       type === InputType.normal
-        ? time.unix().toString()
+        ? unixSecond
         : time.format("YYYY-MM-DD HH:mm:ss");
     const millisecond = decimal
       .slice(0, formatDecimalLength.millisecond)
@@ -119,6 +126,8 @@ export const transform = (
       second,
       millisecond: `${second}${separator}${millisecond}`,
       nanosecond: `${second}${separator}${nanosecond}`,
+      unixSecond,
+      unixMillisecond,
       format: resolvedFormat,
       autoFormat: _format,
       type,
@@ -130,6 +139,8 @@ export const transform = (
       second: error,
       millisecond: error,
       nanosecond: error,
+      unixSecond: error,
+      unixMillisecond: error,
       type,
       format: resolvedFormat,
       autoFormat: _format,

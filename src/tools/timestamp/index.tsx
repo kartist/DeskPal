@@ -11,11 +11,11 @@ export default function TimestampTool() {
   );
   const [result, setResult] = useState<Output | null>(null);
 
-  // 实时刷新当前时间（每秒）
+  // 实时刷新当前时间（每毫秒）
   useEffect(() => {
     const id = setInterval(() => {
       setNow(transform(Date.now().toString(), "local", Format.millisecond));
-    }, 1000);
+    }, 93);
     return () => clearInterval(id);
   }, []);
 
@@ -56,6 +56,8 @@ export default function TimestampTool() {
             <TimeRow label="second" value={now.second} />
             <TimeRow label="millisecond" value={now.millisecond} />
             <TimeRow label="nanosecond" value={now.nanosecond} />
+            <TimeRow label="second timestamp" value={now.unixSecond} />
+            <TimeRow label="millSecond timestamp" value={now.unixMillisecond} />
           </>
         )}
       </div>
@@ -76,6 +78,8 @@ export default function TimestampTool() {
             <TimeRow label="second" value={result.second} />
             <TimeRow label="millisecond" value={result.millisecond} />
             <TimeRow label="nanosecond" value={result.nanosecond} />
+            <TimeRow label="unix second" value={result.unixSecond} />
+            <TimeRow label="unix millisecond" value={result.unixMillisecond} />
             <div className="ts-hint">
               自动识别: {result.autoFormat} |{" "}
               输入类型:{" "}
