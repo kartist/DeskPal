@@ -36,6 +36,7 @@ jobs:
         run: pnpm tauri build
       - name: Build Tauri app (Windows)
         if: matrix.os == 'windows-latest'
-        # Pass --bundles with non-Windows targets so Tauri compiles
-        # the binary but skips MSI bundling (avoids WiX download 504).
-        run: pnpm tauri build --bundles deb,rpm
+        # Compile the binary only, skipping MSI bundling entirely
+        # (avoids WiX download 504 timeout from GitHub Releases).
+        working-directory: src-tauri
+        run: cargo build --release
