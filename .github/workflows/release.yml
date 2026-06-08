@@ -31,6 +31,11 @@ jobs:
       - name: Build Tauri app (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: pnpm tauri build --bundles deb,rpm
-      - name: Build Tauri app (macOS / Windows)
-        if: matrix.os != 'ubuntu-latest'
+      - name: Build Tauri app (macOS)
+        if: matrix.os == 'macos-latest'
         run: pnpm tauri build
+      - name: Build Tauri app (Windows)
+        if: matrix.os == 'windows-latest'
+        # Pass --bundles with non-Windows targets so Tauri compiles
+        # the binary but skips MSI bundling (avoids WiX download 504).
+        run: pnpm tauri build --bundles deb,rpm
