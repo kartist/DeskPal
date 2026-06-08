@@ -28,4 +28,9 @@ jobs:
       - run: cargo test
         working-directory: src-tauri
       - run: pnpm build
-      - run: pnpm tauri build
+      - name: Build Tauri app (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: pnpm tauri build --bundles deb,rpm
+      - name: Build Tauri app (macOS / Windows)
+        if: matrix.os != 'ubuntu-latest'
+        run: pnpm tauri build
