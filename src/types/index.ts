@@ -29,6 +29,14 @@ export interface DeskPalConfig {
   double_click_pin_enabled: boolean;
 }
 
+/** 终端预设命令 */
+export interface TermPreset {
+  id: string;        // uuid，用于 key 和操作标识
+  label: string;     // 按钮上显示的名称
+  cmd: string;       // 要执行的命令
+  note?: string;     // 可选注释说明
+}
+
 /** 工具分类 */
 export interface ToolCategory {
   id: string;           // 唯一标识（系统分类用 "__all__" / "__frequent__"，用户自定义用 uuidv4）

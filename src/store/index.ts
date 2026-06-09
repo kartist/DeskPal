@@ -1,7 +1,17 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { DeskPalConfig, ToolCategory } from "../types";
+import type { DeskPalConfig, ToolCategory, TermPreset } from "../types";
 import { buildDefaultCategories } from "../lib/categories";
+
+/** 构建默认终端预设命令 */
+export function buildDefaultTerminalPresets(): TermPreset[] {
+  return [
+    { id: "preset-1", label: "ipconfig", cmd: "ipconfig", note: "查看本机网络配置" },
+    { id: "preset-2", label: "dir", cmd: "dir", note: "列出当前目录" },
+    { id: "preset-3", label: "echo hello", cmd: "echo hello", note: "测试命令执行" },
+    { id: "preset-4", label: "ping localhost", cmd: "ping -n 4 localhost", note: "Ping 本机 4 次测试网络" },
+  ];
+}
 
 export type WindowMode = "dormant" | "hidden" | "expanded";
 
@@ -41,6 +51,10 @@ export interface AppState {
   setTimestampInput: (text: string) => void;
   terminalInput: string;
   setTerminalInput: (text: string) => void;
+
+  /** 终端预设命令 */
+  terminalPresets: TermPreset[];
+  setTerminalPresets: (presets: TermPreset[]) => void;
 
   /** JSON 工具缓存 */
   jsonInput: string;
@@ -103,6 +117,10 @@ export const useStore = create<AppState>()(
       terminalInput: "",
       setTerminalInput: (text) => set({ terminalInput: text }),
 
+      // 终端预设命令
+      terminalPresets: buildDefaultTerminalPresets(),
+      setTerminalPresets: (presets) => set({ terminalPresets: presets }),
+
       jsonInput: "",
       setJsonInput: (text) => set({ jsonInput: text }),
       jsonpathInput: "",
@@ -134,6 +152,7 @@ export const useStore = create<AppState>()(
         namingInput: state.namingInput,
         timestampInput: state.timestampInput,
         terminalInput: state.terminalInput,
+        terminalPresets: state.terminalPresets,
         jsonInput: state.jsonInput,
         jsonpathInput: state.jsonpathInput,
         categories: state.categories,
