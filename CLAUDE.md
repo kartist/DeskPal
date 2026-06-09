@@ -10,5 +10,8 @@
 - `docs/ai-rules/03-git.md` — Git 提交规范
 - `docs/ai-rules/04-tools-development.md` — 工具模块开发规范
 
+## 版本发布
+- `.reasonix/RELEASE.md` — 版本发布与 CI 构建规范（不在 GitHub 上显示）
+
 ## 最强制规则
 **每次改动代码后，必须使用 git 提交，并维护有意义的 commit message。此规则优先级高于一切。**

@@ -1,15 +1,46 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Copy, Check } from "lucide-react";
 import { transform, Format } from "./utils";
 import type { Output } from "./utils";
+import { useStore } from "../../store";
 import "./timestamp.css";
 
 export default function TimestampTool() {
+  const setTimestampInput = useStore((s) => s.setTimestampInput);
   const [input, setInput] = useState("");
   const [now, setNow] = useState<Output>(() =>
     transform(Date.now().toString(), "local", Format.millisecond)
   );
   const [result, setResult] = useState<Output | null>(null);
+  const inited = useRef(false);
+
+  // 挂载时从 store 恢复；无缓存则尝试剪贴板
+  useEffect(() => {
+    if (inited.current) return;
+    inited.current = true;
+    const stored = useStore.getState().timestampInput;
+    if (stored) {
+      setInput(stored);
+      const r = transform(stored, "local");
+      if (r.isValid) setResult(r);
+      return;
+    }
+    // 无缓存 → 读剪贴板
+    navigator.clipboard
+      .readText()
+      .then((text) => {
+        if (!text.trim()) return;
+        const r = transform(text, "local");
+        if (r.isValid) {
+          setInput(text);
+          setResult(r);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // 输入变更 → 同步到 store
+  useEffect(() => { setTimestampInput(input); }, [input, setTimestampInput]);
 
   // 实时刷新当前时间（每毫秒）
   useEffect(() => {
@@ -30,21 +61,6 @@ export default function TimestampTool() {
     }, 300);
     return () => clearTimeout(timer);
   }, [input]);
-
-  // 挂载时读取剪贴板
-  useEffect(() => {
-    navigator.clipboard
-      .readText()
-      .then((text) => {
-        if (!text.trim()) return;
-        const r = transform(text, "local");
-        if (r.isValid) {
-          setInput(text);
-          setResult(r);
-        }
-      })
-      .catch(() => {});
-  }, []);
 
   return (
     <div className="tool-panel ts-container">

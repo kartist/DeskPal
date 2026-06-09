@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { Terminal, Play, Copy, Trash2 } from "lucide-react";
 import { executeCommand, type ExecutionResult } from "./utils";
 import { useToast } from "../../store/toastStore";
+import { useStore } from "../../store";
 import "./terminal.css";
 
 const PRESETS = [
@@ -12,12 +13,25 @@ const PRESETS = [
 ];
 
 export default function TerminalTool() {
+  const setTerminalInput = useStore((s) => s.setTerminalInput);
   const [input, setInput] = useState("");
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<ExecutionResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const outputRef = useRef<HTMLTextAreaElement>(null);
+  const inited = useRef(false);
   const toast = useToast();
+
+  // 挂载时从 store 恢复
+  useEffect(() => {
+    if (inited.current) return;
+    inited.current = true;
+    const stored = useStore.getState().terminalInput;
+    if (stored) setInput(stored);
+  }, []);
+
+  // 输入变更 → 同步到 store
+  useEffect(() => { setTerminalInput(input); }, [input, setTerminalInput]);
 
   // Auto-scroll output to bottom
   useEffect(() => {

@@ -1,10 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { diffLines } from "diff";
+import { useStore } from "../../store";
 import "./diff.css";
 
 export default function DiffTool() {
+  const setDiffOriginal = useStore((s) => s.setDiffOriginal);
+  const setDiffModified = useStore((s) => s.setDiffModified);
   const [original, setOriginal] = useState("");
   const [modified, setModified] = useState("");
+  const inited = useRef(false);
+
+  // 挂载时从 store 恢复
+  useEffect(() => {
+    if (inited.current) return;
+    inited.current = true;
+    const s = useStore.getState();
+    if (s.diffOriginal) setOriginal(s.diffOriginal);
+    if (s.diffModified) setModified(s.diffModified);
+  }, []);
+
+  // 输入变更 → 同步到 store
+  useEffect(() => { setDiffOriginal(original); }, [original, setDiffOriginal]);
+  useEffect(() => { setDiffModified(modified); }, [modified, setDiffModified]);
 
   const changes = diffLines(original, modified);
 

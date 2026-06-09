@@ -1,8 +1,22 @@
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useStore } from "../../store";
 import "./url.css";
 
 export default function UrlTool() {
+  const setUrlInput = useStore((s) => s.setUrlInput);
   const [input, setInput] = useState("");
+  const inited = useRef(false);
+
+  // 挂载时从 store 恢复
+  useEffect(() => {
+    if (inited.current) return;
+    inited.current = true;
+    const stored = useStore.getState().urlInput;
+    if (stored) setInput(stored);
+  }, []);
+
+  // 输入变更 → 同步到 store
+  useEffect(() => { setUrlInput(input); }, [input, setUrlInput]);
 
   const handleEncode = useCallback(() => {
     if (!input.trim()) return;

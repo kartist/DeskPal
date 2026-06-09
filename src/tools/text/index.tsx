@@ -1,10 +1,26 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import TextProcessor, { escapeChars } from "./utils";
+import { useStore } from "../../store";
 import "./text.css";
 
 export default function TextTool() {
+  const setTextInput = useStore((s) => s.setTextInput);
   const [input, setInput] = useState("");
   const [stats, setStats] = useState<Record<string, number> | null>(null);
+  const inited = useRef(false);
+
+  // 挂载时从 store 恢复
+  useEffect(() => {
+    if (inited.current) return;
+    inited.current = true;
+    const stored = useStore.getState().textInput;
+    if (stored) setInput(stored);
+  }, []);
+
+  // 输入变更 → 同步到 store
+  useEffect(() => {
+    setTextInput(input);
+  }, [input, setTextInput]);
 
   // 统计防抖
   useEffect(() => {

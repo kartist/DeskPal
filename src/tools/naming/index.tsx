@@ -1,11 +1,25 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { convent, typeLists } from "../text/nameConvert";
 import type { TypeLists } from "../text/nameConvert";
 import { useToast } from "../../store/toastStore";
+import { useStore } from "../../store";
 import "./naming.css";
 
 export default function NamingTool() {
+  const setNamingInput = useStore((s) => s.setNamingInput);
   const [input, setInput] = useState("");
+  const inited = useRef(false);
+
+  // 挂载时从 store 恢复
+  useEffect(() => {
+    if (inited.current) return;
+    inited.current = true;
+    const stored = useStore.getState().namingInput;
+    if (stored) setInput(stored);
+  }, []);
+
+  // 输入变更 → 同步到 store
+  useEffect(() => { setNamingInput(input); }, [input, setNamingInput]);
 
   // 批量转换函数（按 ctool VariableConversion.vue 的逻辑）
   const batchConvent = useCallback((str: string, type: TypeLists) => {

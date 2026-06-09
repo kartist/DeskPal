@@ -1,11 +1,25 @@
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { parseJwt } from "./utils";
+import { useStore } from "../../store";
 import "./jwt.css";
 
 export default function JwtTool() {
+  const setJwtInput = useStore((s) => s.setJwtInput);
   const [input, setInput] = useState("");
   const [result, setResult] = useState<{ header: string; payload: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const inited = useRef(false);
+
+  // 挂载时从 store 恢复
+  useEffect(() => {
+    if (inited.current) return;
+    inited.current = true;
+    const stored = useStore.getState().jwtInput;
+    if (stored) setInput(stored);
+  }, []);
+
+  // 输入变更 → 同步到 store
+  useEffect(() => { setJwtInput(input); }, [input, setJwtInput]);
 
   const handleDecode = useCallback(() => {
     if (!input.trim()) { setResult(null); setError(null); return; }

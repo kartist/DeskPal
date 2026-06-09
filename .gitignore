@@ -20,3 +20,6 @@ deskpal.log
 
 # Build output
 dist/
+
+# AI working files (not shown on GitHub)
+.reasonix/

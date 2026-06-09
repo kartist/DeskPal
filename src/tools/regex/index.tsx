@@ -1,12 +1,32 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { commonExpressions } from "./utils";
+import { useStore } from "../../store";
 import "./regex.css";
 
 export default function RegexTool() {
+  const setRegexPattern = useStore((s) => s.setRegexPattern);
+  const setRegexFlags = useStore((s) => s.setRegexFlags);
+  const setRegexTestText = useStore((s) => s.setRegexTestText);
   const [pattern, setPattern] = useState("");
   const [flags, setFlags] = useState("gm");
   const [testText, setTestText] = useState("");
   const [matchError, setMatchError] = useState<string | null>(null);
+  const inited = useRef(false);
+
+  // 挂载时从 store 恢复
+  useEffect(() => {
+    if (inited.current) return;
+    inited.current = true;
+    const s = useStore.getState();
+    if (s.regexPattern) setPattern(s.regexPattern);
+    if (s.regexFlags) setFlags(s.regexFlags);
+    if (s.regexTestText) setTestText(s.regexTestText);
+  }, []);
+
+  // 输入变更 → 同步到 store
+  useEffect(() => { setRegexPattern(pattern); }, [pattern, setRegexPattern]);
+  useEffect(() => { setRegexFlags(flags); }, [flags, setRegexFlags]);
+  useEffect(() => { setRegexTestText(testText); }, [testText, setRegexTestText]);
 
   const matches = useMemo(() => {
     if (!pattern.trim() || !testText.trim()) return null;
