@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useStore } from "../../store";
 import { getGridTools } from "../../lib/registry";
 import CategorySection from "./CategorySection";
-import { Box, Clock, Terminal, Braces, Type, CaseSensitive, FileDiff, Fingerprint, Shuffle, Link2, Code, Shield } from "lucide-react";
+import { Box, Clock, Terminal, Braces, Type, CaseSensitive, FileDiff, Fingerprint, Shuffle, Link2, Code, Shield, Palette, Star, Zap, Globe, Cloud, Database, Wrench } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import "./grid.css";
 
@@ -11,6 +11,8 @@ const iconMap: Record<string, LucideIcon> = {
   clock: Clock, braces: Braces, type: Type, "case-sensitive": CaseSensitive,
   "file-diff": FileDiff, fingerprint: Fingerprint, shuffle: Shuffle,
   link: Link2, code: Code, shield: Shield, terminal: Terminal,
+  palette: Palette, star: Star, zap: Zap, globe: Globe,
+  cloud: Cloud, database: Database, wrench: Wrench,
 };
 
 /** 获取图标组件，未识别则使用 Box 作为通用 fallback */
