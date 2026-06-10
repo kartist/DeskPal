@@ -55,6 +55,7 @@ impl PluginScanner {
                                     icon: "box".to_string(),
                                     keywords: vec![],
                                     main: "index.js".to_string(),
+                                    permissions: vec![],
                                 },
                                 status: "invalid_manifest".to_string(),
                                 error: Some(format!("JSON parse error: {}", e)),
@@ -75,6 +76,7 @@ impl PluginScanner {
                             icon: "box".to_string(),
                             keywords: vec![],
                             main: "index.js".to_string(),
+                            permissions: vec![],
                         },
                         status: "invalid_manifest".to_string(),
                         error: Some(format!("Cannot read manifest.json: {}", e)),
@@ -141,6 +143,7 @@ impl PluginScanner {
                 icon: "box".to_string(),
                 keywords: vec![],
                 main: "index.js".to_string(),
+                permissions: vec![],
             });
 
         let main_path = plugin_dir.join(&manifest.main);

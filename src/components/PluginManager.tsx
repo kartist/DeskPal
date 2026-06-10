@@ -197,6 +197,28 @@ export function PluginManager() {
           </div>
           <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
             ID: {meta.manifest.id}
+            {meta.manifest.permissions && meta.manifest.permissions.length > 0 && (
+              <span style={{ marginLeft: 8 }}>
+                {meta.manifest.permissions.map((p) => (
+                  <span
+                    key={p}
+                    style={{
+                      display: "inline-block",
+                      fontSize: 10,
+                      padding: "1px 6px",
+                      borderRadius: 3,
+                      marginRight: 4,
+                      background: p === "iframe" ? "rgba(88,166,255,0.15)" : "rgba(210,153,34,0.15)",
+                      color: p === "iframe" ? "var(--accent)" : "var(--warning)",
+                      border: "1px solid",
+                      borderColor: p === "iframe" ? "rgba(88,166,255,0.3)" : "rgba(210,153,34,0.3)",
+                    }}
+                  >
+                    {p === "iframe" ? "🖼 网页" : p === "openUrl" ? "🔗 外部" : p}
+                  </span>
+                ))}
+              </span>
+            )}
           </div>
           {meta.error && (
             <div

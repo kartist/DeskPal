@@ -45,6 +45,7 @@ export interface PluginManifest {
   icon: string;         // 图标标识
   keywords: string[];   // 搜索关键词
   main: string;         // 入口文件名
+  permissions: string[];// 权限声明: "iframe" | "openUrl"
 }
 
 /** 插件运行时状态 */

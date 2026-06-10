@@ -18,6 +18,9 @@ pub struct PluginManifest {
     /// 入口文件名，默认 "index.js"
     #[serde(default = "default_plugin_main")]
     pub main: String,
+    /// 权限声明（声明式信任标签），当前支持: "iframe"、"openUrl"
+    #[serde(default)]
+    pub permissions: Vec<String>,
 }
 
 fn default_plugin_icon() -> String {
