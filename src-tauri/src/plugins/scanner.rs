@@ -38,25 +38,29 @@ impl PluginScanner {
 
             let manifest_path = path.join("manifest.json");
             let manifest: PluginManifest = match fs::read_to_string(&manifest_path) {
-                Ok(content) => match serde_json::from_str(&content) {
-                    Ok(m) => m,
-                    Err(e) => {
-                        results.push(PluginScanResult {
-                            manifest: PluginManifest {
-                                id: path
-                                    .file_name()
-                                    .map(|n| n.to_string_lossy().to_string())
-                                    .unwrap_or_default(),
-                                name: "Unknown".to_string(),
-                                version: "0.0.0".to_string(),
-                                icon: "box".to_string(),
-                                keywords: vec![],
-                                main: "index.js".to_string(),
-                            },
-                            status: "invalid_manifest".to_string(),
-                            error: Some(format!("JSON parse error: {}", e)),
-                        });
-                        continue;
+                Ok(content) => {
+                    // 去除 UTF-8 BOM（PowerShell Out-File -Encoding utf8 会写入）
+                    let clean = content.trim_start_matches('\u{FEFF}');
+                    match serde_json::from_str(clean) {
+                        Ok(m) => m,
+                        Err(e) => {
+                            results.push(PluginScanResult {
+                                manifest: PluginManifest {
+                                    id: path
+                                        .file_name()
+                                        .map(|n| n.to_string_lossy().to_string())
+                                        .unwrap_or_default(),
+                                    name: "Unknown".to_string(),
+                                    version: "0.0.0".to_string(),
+                                    icon: "box".to_string(),
+                                    keywords: vec![],
+                                    main: "index.js".to_string(),
+                                },
+                                status: "invalid_manifest".to_string(),
+                                error: Some(format!("JSON parse error: {}", e)),
+                            });
+                            continue;
+                        }
                     }
                 },
                 Err(e) => {
@@ -128,6 +132,7 @@ impl PluginScanner {
         // 先读 manifest 确定 main 文件名
         let manifest: PluginManifest = fs::read_to_string(plugin_dir.join("manifest.json"))
             .ok()
+            .map(|s| s.trim_start_matches('\u{FEFF}').to_string())
             .and_then(|s| serde_json::from_str(&s).ok())
             .unwrap_or(PluginManifest {
                 id: plugin_id.to_string(),
