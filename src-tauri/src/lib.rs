@@ -3,6 +3,7 @@ mod hotkey;
 mod tray;
 mod detect;
 mod config;
+mod plugins;
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
@@ -74,6 +75,32 @@ fn set_config(
     Ok(())
 }
 
+/// 列出所有已发现的插件（扫描磁盘）
+#[tauri::command]
+fn list_plugins(
+    scanner: tauri::State<'_, Mutex<crate::plugins::scanner::PluginScanner>>,
+) -> Vec<crate::plugins::types::PluginScanResult> {
+    scanner.lock().map(|s| s.scan()).unwrap_or_default()
+}
+
+/// 读取指定插件的入口 JS 代码
+#[tauri::command]
+fn get_plugin_code(
+    scanner: tauri::State<'_, Mutex<crate::plugins::scanner::PluginScanner>>,
+    plugin_id: String,
+) -> Result<String, String> {
+    scanner.lock().map_err(|e| e.to_string())?.read_code(&plugin_id)
+}
+
+/// 读取指定插件的 CSS 代码
+#[tauri::command]
+fn get_plugin_css(
+    scanner: tauri::State<'_, Mutex<crate::plugins::scanner::PluginScanner>>,
+    plugin_id: String,
+) -> Result<String, String> {
+    scanner.lock().map_err(|e| e.to_string())?.read_css(&plugin_id)
+}
+
 /// AutoHide: from frontend when cursor leaves dormant bar for 2s
 #[tauri::command]
 fn trigger_auto_hide(state: tauri::State<'_, Mutex<WindowManager>>) -> Result<(), String> {
@@ -119,6 +146,9 @@ pub fn run() {
 
             let wm = WindowManager::new(window.clone(), &state_path, &config);
             app.manage(Mutex::new(wm));
+
+            let plugin_scanner = crate::plugins::scanner::PluginScanner::new();
+            app.manage(std::sync::Mutex::new(plugin_scanner));
 
             // 启动即显示收缩态
             let state = app.state::<Mutex<WindowManager>>();
@@ -192,6 +222,9 @@ pub fn run() {
             set_config,
             trigger_auto_hide,
             trigger_hover_activate,
+            list_plugins,
+            get_plugin_code,
+            get_plugin_css,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { getConfig, setConfig as ipcSetConfig } from "../lib/ipc";
 import type { DeskPalConfig } from "../types";
 import { useStore } from "../store";
+import { PluginManager } from "./PluginManager";
 
 type ConfigKey = keyof DeskPalConfig;
 
@@ -81,6 +82,7 @@ export function SettingsPanel() {
   const setStoreConfig = useStore((s) => s.setConfig);
   const [localConfig, setLocalConfig] = useState<DeskPalConfig | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<"general" | "plugins">("general");
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
   // 加载配置：优先从 store，否则从 Rust
@@ -140,6 +142,29 @@ export function SettingsPanel() {
 
   return (
     <div style={styles.container}>
+      {/* Tab 切换 */}
+      <div style={styles.tabBar}>
+        <button
+          style={{
+            ...styles.tab,
+            ...(activeTab === "general" ? styles.tabActive : {}),
+          }}
+          onClick={() => setActiveTab("general")}
+        >
+          ⚙️ 通用
+        </button>
+        <button
+          style={{
+            ...styles.tab,
+            ...(activeTab === "plugins" ? styles.tabActive : {}),
+          }}
+          onClick={() => setActiveTab("plugins")}
+        >
+          🧩 插件
+        </button>
+      </div>
+
+      {activeTab === "general" ? (
       <div style={styles.body}>
         {/* 🖥 窗口 */}
         <SectionCard icon="🖥" title="窗口">
@@ -362,6 +387,9 @@ export function SettingsPanel() {
           </SettingRow>
         </SectionCard>
       </div>
+      ) : (
+        <PluginManager />
+      )}
     </div>
   );
 }
@@ -372,6 +400,28 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
+  },
+  tabBar: {
+    display: "flex",
+    borderBottom: "1px solid var(--divider)",
+    padding: "0 12px",
+    gap: 0,
+    minHeight: 36,
+  },
+  tab: {
+    padding: "8px 14px",
+    fontSize: 12,
+    fontWeight: 500,
+    border: "none",
+    background: "transparent",
+    color: "var(--text-muted)",
+    cursor: "pointer",
+    borderBottom: "2px solid transparent",
+    transition: "all 100ms ease",
+  },
+  tabActive: {
+    color: "var(--accent)",
+    borderBottomColor: "var(--accent)",
   },
   body: {
     flex: 1,

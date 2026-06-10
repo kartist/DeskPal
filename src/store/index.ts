@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { DeskPalConfig, ToolCategory, TermPreset } from "../types";
+import type { DeskPalConfig, ToolCategory, TermPreset, PluginMeta } from "../types";
 import { buildDefaultCategories } from "../lib/categories";
 
 /** 构建默认终端预设命令 */
@@ -77,6 +77,14 @@ export interface AppState {
   /** 折叠状态：已折叠的分类 ID 列表 */
   collapsedCategories: string[];
   setCollapsedCategories: (ids: string[]) => void;
+
+  /** 外部插件元数据 */
+  pluginMetas: PluginMeta[];
+  setPluginMetas: (metas: PluginMeta[]) => void;
+
+  /** 全局插件加载错误 */
+  pluginLoadError: string | null;
+  setPluginLoadError: (err: string | null) => void;
 }
 
 export const useStore = create<AppState>()(
@@ -137,6 +145,12 @@ export const useStore = create<AppState>()(
       // 折叠状态
       collapsedCategories: [] as string[],
       setCollapsedCategories: (ids) => set({ collapsedCategories: ids }),
+
+      // 外部插件
+      pluginMetas: [] as PluginMeta[],
+      setPluginMetas: (metas) => set({ pluginMetas: metas }),
+      pluginLoadError: null,
+      setPluginLoadError: (err) => set({ pluginLoadError: err }),
     }),
     {
       name: "deskpal-ui-state",

@@ -1,9 +1,9 @@
 import { useState, useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useStore } from "../../store";
-import { gridTools } from "../../lib/registry";
+import { getGridTools } from "../../lib/registry";
 import CategorySection from "./CategorySection";
-import { Clock, Terminal, Braces, Type, CaseSensitive, FileDiff, Fingerprint, Shuffle, Link2, Code, Shield } from "lucide-react";
+import { Box, Clock, Terminal, Braces, Type, CaseSensitive, FileDiff, Fingerprint, Shuffle, Link2, Code, Shield } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import "./grid.css";
 
@@ -12,6 +12,11 @@ const iconMap: Record<string, LucideIcon> = {
   "file-diff": FileDiff, fingerprint: Fingerprint, shuffle: Shuffle,
   link: Link2, code: Code, shield: Shield, terminal: Terminal,
 };
+
+/** 获取图标组件，未识别则使用 Box 作为通用 fallback */
+function getIcon(name: string): LucideIcon {
+  return iconMap[name] || Box;
+}
 
 interface DragState {
   toolId: string;
@@ -130,7 +135,7 @@ export default function ToolGridPanel() {
   }, [drag, categories, setCategories]);
 
   // Look up tool metadata for the ghost
-  const dragTool = drag ? gridTools.find((t) => t.id === drag.toolId) : null;
+  const dragTool = drag ? getGridTools().find((t) => t.id === drag.toolId) : null;
 
   return (
     <div className="toolgrid-panel">
@@ -165,7 +170,7 @@ export default function ToolGridPanel() {
           }}
         >
           {(() => {
-            const GIcon = iconMap[dragTool.icon] || Clock;
+            const GIcon = getIcon(dragTool.icon);
             return (
               <div className="tool-card drag-ghost-card" style={{ width: "100%", height: "100%" }}>
                 <GIcon className="tool-card-icon" size={22} />

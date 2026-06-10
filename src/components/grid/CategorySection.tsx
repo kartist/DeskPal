@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { useStore } from "../../store";
-import { gridTools } from "../../lib/registry";
+import { getGridTools } from "../../lib/registry";
 import { mergeAllTools } from "../../lib/categories";
 import ToolCard from "./ToolCard";
 import type { ToolCategory } from "../../types";
@@ -30,9 +30,10 @@ export default function CategorySection({
     ? mergeAllTools(category.toolIds)
     : [...new Set(category.toolIds)];  // dedup in case of stale duplicate data
 
+  const toolsData = getGridTools();
   const tools = resolvedToolIds
-    .map((id) => gridTools.find((t) => t.id === id))
-    .filter(Boolean) as typeof gridTools;
+    .map((id) => toolsData.find((t) => t.id === id))
+    .filter(Boolean) as typeof toolsData;
 
   const isDropTarget = dropTargetId === category.id;
 

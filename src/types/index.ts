@@ -37,6 +37,30 @@ export interface TermPreset {
   note?: string;     // 可选注释说明
 }
 
+/** 外部插件清单 — 对应 Rust PluginManifest */
+export interface PluginManifest {
+  id: string;           // 唯一标识
+  name: string;         // 显示名称
+  version: string;      // 语义化版本
+  icon: string;         // 图标标识
+  keywords: string[];   // 搜索关键词
+  main: string;         // 入口文件名
+}
+
+/** 插件运行时状态 */
+export interface PluginMeta {
+  manifest: PluginManifest;
+  status: "ok" | "loading" | "loaded" | "error" | "disabled";
+  error?: string;
+}
+
+/** Rust scanner 返回的原始扫描结果 */
+export interface PluginScanResult {
+  manifest: PluginManifest;
+  status: string;         // "ok" | "invalid_manifest" | "missing_main"
+  error: string | null;
+}
+
 /** 工具分类 */
 export interface ToolCategory {
   id: string;           // 唯一标识（系统分类用 "__all__" / "__frequent__"，用户自定义用 uuidv4）

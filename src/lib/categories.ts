@@ -1,13 +1,14 @@
-import { gridTools } from "./registry";
+import { getGridTools } from "./registry";
 import type { ToolCategory } from "../types";
 
 /** 构建默认分类列表 */
 export function buildDefaultCategories(): ToolCategory[] {
+  const tools = getGridTools();
   return [
     {
       id: "__all__",
       name: "全部",
-      toolIds: gridTools.map((t) => t.id),
+      toolIds: tools.map((t) => t.id),
       isSystem: true,
     },
     {
@@ -21,11 +22,12 @@ export function buildDefaultCategories(): ToolCategory[] {
 
 /** Merge __all__ category toolIds with current registry */
 export function mergeAllTools(existingToolIds: string[]): string[] {
-  const registryIds = new Set(gridTools.map((t) => t.id));
+  const tools = getGridTools();
+  const registryIds = new Set(tools.map((t) => t.id));
   // Keep user-added tools that are still in registry
   const existing = existingToolIds.filter((id) => registryIds.has(id));
   // Add new registry tools not yet in the list
-  const newTools = gridTools
+  const newTools = tools
     .filter((t) => !existingToolIds.includes(t.id))
     .map((t) => t.id);
   return [...existing, ...newTools];

@@ -1,14 +1,76 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useStore } from "./store";
-import { togglePanel, triggerAutoHide, triggerHoverActivate, getConfig } from "./lib/ipc";
+import { togglePanel, triggerAutoHide, triggerHoverActivate, getConfig, listPlugins, getPluginCode, getPluginCss } from "./lib/ipc";
 import { listenToEvents } from "./lib/events";
+import { loadPluginComponent, loadPluginCSS } from "./lib/pluginLoader";
+import { registerExternalComponent } from "./tools";
+import { registerExternalPlugin } from "./lib/registry";
 import TitleBar from "./components/TitleBar";
 import ToolPanel from "./components/ToolPanel";
 import ToolGridPanel from "./components/grid/ToolGridPanel";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { StatusBar } from "./components/StatusBar";
 import Toast from "./components/Toast";
+import ErrorBoundary from "./components/ErrorBoundary";
 import "./styles/global.css";
+
+/**
+ * 扫描并加载外部插件。
+ * 每个插件加载失败不影响其他插件及内置工具。
+ */
+async function loadExternalPlugins() {
+  try {
+    const results = await listPlugins();
+    const metas = results.map((r) => ({
+      manifest: r.manifest,
+      status: (r.status === "ok" ? "loading" : "error") as "loading" | "error",
+      error: r.error ?? undefined,
+    }));
+    useStore.getState().setPluginMetas(metas);
+
+    for (let i = 0; i < results.length; i++) {
+      const r = results[i];
+      if (r.status !== "ok") continue;
+
+      const metaIndex = i;
+      try {
+        // 加载 JS 组件
+        const code = await getPluginCode(r.manifest.id);
+        const component = loadPluginComponent(code);
+        registerExternalComponent(r.manifest.id, component);
+
+        // 加载 CSS
+        const css = await getPluginCss(r.manifest.id);
+        if (css.trim()) loadPluginCSS(css, r.manifest.id);
+
+        // 注册元数据
+        registerExternalPlugin({
+          manifest: r.manifest,
+          status: "loaded",
+        });
+
+        // 更新 store 状态
+        useStore.getState().setPluginMetas(
+          useStore.getState().pluginMetas.map((m, idx) =>
+            idx === metaIndex ? { ...m, status: "loaded" as const } : m
+          )
+        );
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error(`[DeskPal] Plugin '${r.manifest.id}' load failed:`, msg);
+        useStore.getState().setPluginMetas(
+          useStore.getState().pluginMetas.map((m, idx) =>
+            idx === metaIndex ? { ...m, status: "error" as const, error: msg } : m
+          )
+        );
+      }
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[DeskPal] Plugin scan failed:", msg);
+    useStore.getState().setPluginLoadError(msg);
+  }
+}
 
 function App() {
   const { windowMode, resolvedTheme, activeTool, config } = useStore();
@@ -20,6 +82,9 @@ function App() {
     getConfig()
       .then((cfg) => useStore.getState().setConfig(cfg))
       .catch((e) => console.error("Failed to load config:", e));
+
+    // 加载外部插件
+    loadExternalPlugins();
 
     const unlisten = listenToEvents();
     return unlisten;
@@ -114,7 +179,9 @@ function App() {
       ) : windowMode === "expanded" && activeTool && activeTool !== "settings" ? (
         <div className="deskpal-panel panel-enter">
           <TitleBar />
-          <ToolPanel />
+          <ErrorBoundary toolId={activeTool}>
+            <ToolPanel />
+          </ErrorBoundary>
         </div>
       ) : windowMode === "expanded" && (
         <div className="deskpal-panel panel-enter">
