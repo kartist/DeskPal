@@ -101,6 +101,15 @@ fn get_plugin_css(
     scanner.lock().map_err(|e| e.to_string())?.read_css(&plugin_id)
 }
 
+/// 打开插件根目录（用系统文件管理器）
+#[tauri::command]
+fn open_plugin_dir(
+    scanner: tauri::State<'_, Mutex<crate::plugins::scanner::PluginScanner>>,
+) -> Result<(), String> {
+    let path = scanner.lock().map_err(|e| e.to_string())?.plugins_dir_path();
+    opener::open(path).map_err(|e| format!("Failed to open plugin dir: {}", e))
+}
+
 /// AutoHide: from frontend when cursor leaves dormant bar for 2s
 #[tauri::command]
 fn trigger_auto_hide(state: tauri::State<'_, Mutex<WindowManager>>) -> Result<(), String> {
@@ -225,6 +234,7 @@ pub fn run() {
             list_plugins,
             get_plugin_code,
             get_plugin_css,
+            open_plugin_dir,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

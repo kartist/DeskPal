@@ -12,3 +12,4 @@ export const triggerHoverActivate = () => invoke<void>("trigger_hover_activate")
 export const listPlugins = () => invoke<PluginScanResult[]>("list_plugins");
 export const getPluginCode = (pluginId: string) => invoke<string>("get_plugin_code", { pluginId });
 export const getPluginCss = (pluginId: string) => invoke<string>("get_plugin_css", { pluginId });
+export const openPluginDir = () => invoke<void>("open_plugin_dir");

@@ -157,6 +157,11 @@ impl PluginScanner {
         fs::read_to_string(&css_path)
             .map_err(|e| format!("Failed to read '{}': {}", css_path.display(), e))
     }
+
+    /// 返回插件根目录路径
+    pub fn plugins_dir_path(&self) -> String {
+        self.plugins_dir.to_string_lossy().to_string()
+    }
 }
 
 /// 解析平台特定的插件目录

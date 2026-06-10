@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useStore } from "../store";
 import { useToast } from "../store/toastStore";
-import { listPlugins, getPluginCode, getPluginCss } from "../lib/ipc";
+import { listPlugins, getPluginCode, getPluginCss, openPluginDir } from "../lib/ipc";
 import { loadPluginComponent, loadPluginCSS } from "../lib/pluginLoader";
 import { registerExternalComponent, unregisterExternalComponent } from "../tools";
 import { registerExternalPlugin } from "../lib/registry";
@@ -121,12 +121,7 @@ export function PluginManager() {
 
   const handleOpenDir = useCallback(async () => {
     try {
-      // 通过 shell open 打开插件目录
-      const { open } = await import("@tauri-apps/plugin-shell");
-      const pluginsDir = await import("@tauri-apps/api/path").then((p) =>
-        p.appDataDir()
-      ).then((dir) => `${dir}plugins`);
-      open(pluginsDir);
+      await openPluginDir();
     } catch (e) {
       toast("无法打开插件目录");
       console.error(e);
