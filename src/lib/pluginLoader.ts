@@ -1,9 +1,12 @@
 /**
  * 插件加载器 — 在沙箱环境中执行外部 JS 代码，返回 React 组件。
  *
- * 安全设计：
+ * 安全与规范：
  * - 通过 `new Function('React', 'exports', code)` 执行，不暴露 window/document/fetch
- * - 插件只能访问显式传入的 React 对象
+ * - 插件代码中可直接使用变量 `React` 和 `exports`（由外层函数参数注入）
+ * - ⚠️ 不要在插件代码中使用 IIFE 包裹并通过 arguments[0] 取 React！
+ *   正确：`exports.default = function MyPlugin() { ... }`
+ *   错误：`(function(){ var React = arguments[0]; ... })()` — arguments 是 IIFE 自身的
  * - CSS 通过 `<style data-plugin-id>` 注入，支持按需卸载
  */
 

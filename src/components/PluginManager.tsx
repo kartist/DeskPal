@@ -2,9 +2,9 @@ import { useCallback } from "react";
 import { useStore } from "../store";
 import { useToast } from "../store/toastStore";
 import { listPlugins, getPluginCode, getPluginCss, openPluginDir } from "../lib/ipc";
-import { loadPluginComponent, loadPluginCSS } from "../lib/pluginLoader";
+import { loadPluginComponent, loadPluginCSS, unloadPluginCSS } from "../lib/pluginLoader";
 import { registerExternalComponent, unregisterExternalComponent } from "../tools";
-import { registerExternalPlugin } from "../lib/registry";
+import { registerExternalPlugin, unregisterExternalPlugin } from "../lib/registry";
 import { Box, RefreshCw, FolderOpen, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 
 const CONTAINER_STYLE: React.CSSProperties = {
@@ -68,7 +68,8 @@ export function PluginManager() {
       for (const m of pluginMetas) {
         if (m.status === "loaded") {
           unregisterExternalComponent(m.manifest.id);
-          // CSS 清理由 pluginLoader 负责
+          unregisterExternalPlugin(m.manifest.id);
+          unloadPluginCSS(m.manifest.id);
         }
       }
 
@@ -207,6 +208,7 @@ export function PluginManager() {
                 padding: "4px 8px",
                 borderRadius: 4,
                 wordBreak: "break-word",
+                userSelect: "text",
               }}
             >
               {meta.error}

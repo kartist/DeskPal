@@ -34,7 +34,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
           <div style={{ color: "var(--danger)", fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
             ⚠️ 工具加载失败
           </div>
-          <div style={{ color: "var(--text-muted)", fontSize: 12, maxWidth: "80%", margin: "0 auto", wordBreak: "break-word" }}>
+          <div style={{ color: "var(--text-muted)", fontSize: 12, maxWidth: "80%", margin: "0 auto", wordBreak: "break-word", userSelect: "text", cursor: "text" }}>
             {this.state.error || "未知错误"}
           </div>
           <button
