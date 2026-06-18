@@ -23,3 +23,7 @@ dist/
 
 # AI working files (not shown on GitHub)
 .reasonix/
+
+# Plugins — only helloworld example is tracked
+plugins/*
+!plugins/helloworld/
