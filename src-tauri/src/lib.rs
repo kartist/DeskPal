@@ -4,6 +4,7 @@ mod tray;
 mod detect;
 mod config;
 mod plugins;
+mod flink;
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
@@ -172,7 +173,7 @@ pub fn run() {
                 eprintln!("Failed to create tray: {}", e);
             }
 
-            // Resize → save height directly; Blur → delay 150ms, cancel if resize/focus
+            // Resize → save height and width directly; Blur → delay 150ms, cancel if resize/focus
             // AutoHide → 2s after cursor leaves Dormant, cancel on cursor enter
             let sp = state_path.clone();
             let should_blur = Arc::new(AtomicBool::new(false));
@@ -181,16 +182,22 @@ pub fn run() {
             window.on_window_event(move |event| {
                 match event {
                     WindowEvent::Resized(size) => {
-                        // Read-modify-write: only update panel_height, preserve existing panel_width and position
-                        let h = size.height.max(300).min(2000) as f64;
+                        // Read-modify-write: update panel_height and panel_width
+                        // Convert physical pixels to logical pixels via DPI scale factor
+                        let scale = handle
+                            .get_webview_window("main")
+                            .and_then(|w| w.scale_factor().ok())
+                            .unwrap_or(1.0);
+                        let h = ((size.height as f64) / scale).max(300.0).min(2000.0);
+                        let w = ((size.width as f64) / scale).max(350.0).min(2000.0);
                         let mut data = std::fs::read_to_string(&sp)
                             .ok()
                             .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
                             .unwrap_or(serde_json::json!({}));
                         data["panel_height"] = serde_json::json!(h);
+                        data["panel_width"] = serde_json::json!(w);
                         let _ = std::fs::create_dir_all(sp.parent().unwrap());
                         let _ = std::fs::write(&sp, serde_json::to_string_pretty(&data).unwrap_or_default());
-                        // Cancel any pending blur (this is a resize, not real blur)
                         should_blur.store(false, Ordering::SeqCst);
                     }
                     WindowEvent::Focused(true) => {
@@ -235,6 +242,20 @@ pub fn run() {
             get_plugin_code,
             get_plugin_css,
             open_plugin_dir,
+            // Flink API
+            flink::api::flink_check_url,
+            flink::api::flink_list_jars,
+            flink::api::flink_upload_jar,
+            flink::api::flink_list_jobs,
+            flink::api::flink_cancel_job,
+            flink::api::flink_trigger_savepoint,
+            flink::api::flink_get_savepoint_status,
+            flink::api::flink_submit_job,
+            // File picker
+            flink::api::pick_jar_file,
+            // Plugin config
+            flink::api::read_plugin_config,
+            flink::api::write_plugin_config,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
