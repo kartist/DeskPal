@@ -174,29 +174,12 @@ export function SettingsPanel() {
           >
             <input
               type="range"
-              min={10}
+              min={14}
               max={60}
               step={2}
               value={config.dormant_width}
               onChange={(e) =>
                 updateField("dormant_width", Number(e.target.value))
-              }
-              style={styles.slider}
-            />
-          </SettingRow>
-
-          <SettingRow
-            label="面板宽度"
-            description={`${config.panel_width}px`}
-          >
-            <input
-              type="range"
-              min={200}
-              max={1200}
-              step={20}
-              value={config.panel_width}
-              onChange={(e) =>
-                updateField("panel_width", Number(e.target.value))
               }
               style={styles.slider}
             />

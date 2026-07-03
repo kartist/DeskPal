@@ -2,8 +2,8 @@
  * 插件加载器 — 在沙箱环境中执行外部 JS 代码，返回 React 组件。
  *
  * 安全与规范：
- * - 通过 `new Function('React', 'exports', code)` 执行，不暴露 window/document/fetch
- * - 插件代码中可直接使用变量 `React` 和 `exports`（由外层函数参数注入）
+ * - 通过 `new Function('React', 'exports', 'invoke', code)` 执行，不暴露 window/document/fetch
+ * - 插件代码中可直接使用变量 `React`、`exports` 和 `invoke`（由外层函数参数注入）
  * - ⚠️ 不要在插件代码中使用 IIFE 包裹并通过 arguments[0] 取 React！
  *   正确：`exports.default = function MyPlugin() { ... }`
  *   错误：`(function(){ var React = arguments[0]; ... })()` — arguments 是 IIFE 自身的
@@ -12,6 +12,7 @@
 
 import React from "react";
 import type { ComponentType } from "react";
+import { invoke } from "@tauri-apps/api/core";
 import type { ToolProps } from "../types";
 
 /** 插件代码执行结果 */
@@ -30,9 +31,9 @@ export function loadPluginComponent(code: string): ComponentType<ToolProps> {
   const exports: PluginModule = {};
 
   try {
-    // 沙箱执行：只传入 React 和 exports，不暴露全局对象
-    const fn = new Function("React", "exports", code);
-    fn(React, exports);
+    // 沙箱执行：只传入 React、exports 和 invoke，不暴露全局对象
+    const fn = new Function("React", "exports", "invoke", code);
+    fn(React, exports, invoke);
   } catch (e) {
     throw new Error(
       `Plugin execution error: ${e instanceof Error ? e.message : String(e)}`

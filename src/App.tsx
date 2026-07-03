@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { useStore } from "./store";
 import { togglePanel, triggerAutoHide, triggerHoverActivate, getConfig, listPlugins, getPluginCode, getPluginCss } from "./lib/ipc";
 import { listenToEvents } from "./lib/events";
@@ -76,6 +76,9 @@ function App() {
   const { windowMode, resolvedTheme, activeTool, config } = useStore();
   const autoHideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // 面板展开动画触发（面板始终挂载，切换可见性时触发动画）
+  const [animatePanel, setAnimatePanel] = useState(false);
+
   // 事件监听（窗口状态同步等）
   useEffect(() => {
     // 启动时加载配置
@@ -128,6 +131,15 @@ function App() {
     root.style.setProperty('--dormant-bar-font-size', `${config.dormant_bar_font_size ?? 13}px`);
   }, [config, resolvedTheme]);
 
+  // 面板展开时触发 slideIn 动画（面板保持挂载，用 rAF 确保 display 已切换后再加动画类）
+  useEffect(() => {
+    if (windowMode === "expanded") {
+      const raf = requestAnimationFrame(() => setAnimatePanel(true));
+      return () => cancelAnimationFrame(raf);
+    }
+    setAnimatePanel(false);
+  }, [windowMode]);
+
   const handleDormantMouseEnter = useCallback(() => {
     cancelAutoHideTimer();
   }, [cancelAutoHideTimer]);
@@ -156,6 +168,7 @@ function App() {
 
   return (
     <>
+      {/* Dormant bar overlay */}
       {(windowMode === "dormant") && (
         <div className="dormant-bar-fill"
           onMouseEnter={handleDormantMouseEnter}
@@ -167,30 +180,34 @@ function App() {
         </div>
       )}
 
+      {/* Hidden bar overlay */}
       {windowMode === "hidden" && (
         <div className="hidden-bar" onMouseEnter={handleHiddenMouseEnter} />
       )}
 
-      {windowMode === "expanded" && activeTool === "settings" ? (
-        <div className="deskpal-panel panel-enter">
-          <TitleBar />
-          <SettingsPanel />
-        </div>
-      ) : windowMode === "expanded" && activeTool && activeTool !== "settings" ? (
-        <div className="deskpal-panel panel-enter">
-          <TitleBar />
-          <ErrorBoundary toolId={activeTool}>
-            <ToolPanel />
-          </ErrorBoundary>
-        </div>
-      ) : windowMode === "expanded" && (
-        <div className="deskpal-panel panel-enter">
-          <TitleBar />
-          <ToolGridPanel />
-          <StatusBar />
-          <div className="resize-grip" title="拖拽调整高度" />
-        </div>
-      )}
+      {/* Panel: always mounted, visibility toggled by CSS to preserve all internal state */}
+      <div className={`deskpal-panel${windowMode === "expanded" ? "" : " panel-hidden"}${animatePanel ? " panel-enter" : ""}`}>
+        {activeTool === "settings" ? (
+          <>
+            <TitleBar />
+            <SettingsPanel />
+          </>
+        ) : activeTool && activeTool !== "settings" ? (
+          <>
+            <TitleBar />
+            <ErrorBoundary toolId={activeTool}>
+              <ToolPanel />
+            </ErrorBoundary>
+          </>
+        ) : (
+          <>
+            <TitleBar />
+            <ToolGridPanel />
+            <StatusBar />
+            <div className="resize-grip" title="拖拽调整高度" />
+          </>
+        )}
+      </div>
       <Toast />
     </>
   );

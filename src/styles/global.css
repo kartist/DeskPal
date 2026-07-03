@@ -141,6 +141,11 @@ html, body, #root {
   overflow: hidden;
 }
 
+/* 面板始终挂载但折叠态隐藏 — display:none 保留 React 组件实例 */
+.panel-hidden {
+  display: none !important;
+}
+
 /* Title bar */
 .titlebar {
   height: 36px; min-height: 36px;
