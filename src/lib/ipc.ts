@@ -8,6 +8,10 @@ export const resetConfig = () => invoke<DeskPalConfig>("reset_config");
 export const triggerAutoHide = () => invoke<void>("trigger_auto_hide");
 export const triggerHoverActivate = () => invoke<void>("trigger_hover_activate");
 
+// --- 宽度预设 ---
+export const setWidthPreset = (preset: "narrow" | "wide") =>
+  invoke<number>("set_width_preset", { preset });
+
 // --- 外部插件 ---
 export const listPlugins = () => invoke<PluginScanResult[]>("list_plugins");
 export const getPluginCode = (pluginId: string) => invoke<string>("get_plugin_code", { pluginId });

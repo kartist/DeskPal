@@ -116,7 +116,7 @@ fn open_plugin_dir(
 fn trigger_auto_hide(state: tauri::State<'_, Mutex<WindowManager>>) -> Result<(), String> {
     let mut wm = state.lock().map_err(|e| e.to_string())?;
     if *wm.state() != WindowState::Dormant {
-        return Ok(()); // 非 Dormant 态忽略
+        return Ok(());
     }
     wm.on_trigger(&Trigger::AutoHide).map_err(|e| e.to_string())
 }
@@ -126,9 +126,23 @@ fn trigger_auto_hide(state: tauri::State<'_, Mutex<WindowManager>>) -> Result<()
 fn trigger_hover_activate(state: tauri::State<'_, Mutex<WindowManager>>) -> Result<(), String> {
     let mut wm = state.lock().map_err(|e| e.to_string())?;
     if *wm.state() != WindowState::Dormant || wm.current_dormant_width() > 10.0 {
-        return Ok(()); // 仅 Dormant 且宽度≤10px 时才激活
+        return Ok(());
     }
     wm.on_trigger(&Trigger::HoverActivate).map_err(|e| e.to_string())
+}
+
+/// 根据预设调整展开态宽度（"narrow"="窄", "wide"="宽"）。
+/// 返回实际设置后的逻辑像素宽度。
+#[tauri::command]
+fn set_width_preset(
+    preset: String,
+    wm: tauri::State<'_, Mutex<WindowManager>>,
+) -> Result<f64, String> {
+    let mut manager = wm.lock().map_err(|e| e.to_string())?;
+    if *manager.state() != WindowState::Expanded {
+        return Err("panel is not expanded".into());
+    }
+    manager.resize_to_preset(&preset).map_err(|e| e.to_string())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -145,12 +159,10 @@ pub fn run() {
             let state_dir = app.path().app_data_dir().expect("app data dir");
             let state_path = state_dir.join("state.json");
 
-            // Initialize config loader and manage as state
             let config_loader = crate::config::loader::ConfigLoader::new();
             let _ = config_loader.ensure_exists();
             app.manage(std::sync::Mutex::new(config_loader));
 
-            // Pass config to WindowManager for default widths
             let config_state = app.state::<std::sync::Mutex<crate::config::loader::ConfigLoader>>();
             let config = config_state.lock().map(|l| l.config().clone()).unwrap_or_default();
 
@@ -160,7 +172,6 @@ pub fn run() {
             let plugin_scanner = crate::plugins::scanner::PluginScanner::new();
             app.manage(std::sync::Mutex::new(plugin_scanner));
 
-            // 启动即显示收缩态
             let state = app.state::<Mutex<WindowManager>>();
             if let Ok(mut wm) = state.lock() {
                 let _ = wm.on_trigger(&Trigger::Init);
@@ -173,8 +184,6 @@ pub fn run() {
                 eprintln!("Failed to create tray: {}", e);
             }
 
-            // Resize → save height and width directly; Blur → delay 150ms, cancel if resize/focus
-            // AutoHide → 2s after cursor leaves Dormant, cancel on cursor enter
             let sp = state_path.clone();
             let should_blur = Arc::new(AtomicBool::new(false));
             let handle = app.handle().clone();
@@ -182,8 +191,6 @@ pub fn run() {
             window.on_window_event(move |event| {
                 match event {
                     WindowEvent::Resized(size) => {
-                        // Read-modify-write: update panel_height and panel_width
-                        // Convert physical pixels to logical pixels via DPI scale factor
                         let scale = handle
                             .get_webview_window("main")
                             .and_then(|w| w.scale_factor().ok())
@@ -199,13 +206,33 @@ pub fn run() {
                         let _ = std::fs::create_dir_all(sp.parent().unwrap());
                         let _ = std::fs::write(&sp, serde_json::to_string_pretty(&data).unwrap_or_default());
                         should_blur.store(false, Ordering::SeqCst);
+
+                        // 判定宽度预设并通知前端
+                        let preset = {
+                            if let Some(win) = handle.get_webview_window("main") {
+                                if let Ok(Some(monitor)) = win.current_monitor() {
+                                    let ms = monitor.size();
+                                    let mw = ms.width as f64 / scale;
+                                    let narrow = mw / 6.0;
+                                    let wide = mw * 2.0 / 3.0;
+                                    let tolerance = 50.0;
+                                    if (w - narrow).abs() <= tolerance { "narrow" }
+                                    else if (w - wide).abs() <= tolerance { "wide" }
+                                    else { "custom" }
+                                } else { "custom" }
+                            } else { "custom" }
+                        };
+                        if let Some(win) = handle.get_webview_window("main") {
+                            let _ = win.emit("panel-resized", serde_json::json!({
+                                "width": w,
+                                "preset": preset,
+                            }));
+                        }
                     }
                     WindowEvent::Focused(true) => {
-                        // Window refocused — cancel pending blur
                         should_blur.store(false, Ordering::SeqCst);
                     }
                     WindowEvent::Focused(false) => {
-                        // Possible blur — delay 150ms, cancel if Resized/Focused(true) arrives
                         should_blur.store(true, Ordering::SeqCst);
                         let sb = should_blur.clone();
                         let h = handle.clone();
@@ -238,11 +265,11 @@ pub fn run() {
             set_config,
             trigger_auto_hide,
             trigger_hover_activate,
+            set_width_preset,
             list_plugins,
             get_plugin_code,
             get_plugin_css,
             open_plugin_dir,
-            // Flink API
             flink::api::flink_check_url,
             flink::api::flink_list_jars,
             flink::api::flink_upload_jar,
@@ -251,9 +278,7 @@ pub fn run() {
             flink::api::flink_trigger_savepoint,
             flink::api::flink_get_savepoint_status,
             flink::api::flink_submit_job,
-            // File picker
             flink::api::pick_jar_file,
-            // Plugin config
             flink::api::read_plugin_config,
             flink::api::write_plugin_config,
         ])

@@ -24,5 +24,18 @@ export function listenToEvents(): () => void {
   });
   unlisteners.push(() => { unlistenBlur.then((fn) => fn()); });
 
+  // Panel resized: Rust emits logical width + preset after manual resize
+  const unlistenResize = listen<{ width: number; preset: string }>(
+    "panel-resized",
+    (event) => {
+      const store = useStore.getState();
+      store.setPanelWidth(event.payload.width);
+      store.setWidthPreset(event.payload.preset as "narrow" | "wide" | "custom");
+    },
+  );
+  unlisteners.push(() => { unlistenResize.then((fn) => fn()); });
+
+
+
   return () => { unlisteners.forEach((fn) => fn()); };
 }

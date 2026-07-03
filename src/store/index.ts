@@ -28,6 +28,13 @@ export interface AppState {
   setTheme: (theme: "dark" | "light") => void;
   pinned: boolean;
   setPinned: (pinned: boolean) => void;
+  /** 当前面板逻辑宽度（由 Rust panel-resized 事件更新） */
+  panelWidth: number;
+  setPanelWidth: (w: number) => void;
+  /** 宽度预设模式 */
+  widthPreset: "narrow" | "wide" | "custom";
+  setWidthPreset: (p: "narrow" | "wide" | "custom") => void;
+
   /** 工具输入缓存 — 面板折叠/展开时保持内容 */
   textInput: string;
   setTextInput: (text: string) => void;
@@ -102,6 +109,13 @@ export const useStore = create<AppState>()(
       setTheme: (theme) => set({ resolvedTheme: theme }),
       pinned: false,
       setPinned: (pinned) => set({ pinned }),
+
+      // 宽度预设（运行时状态，不持久化）
+      panelWidth: 480,
+      setPanelWidth: (w) => set({ panelWidth: w }),
+      widthPreset: "custom",
+      setWidthPreset: (p) => set({ widthPreset: p }),
+
       textInput: "",
       setTextInput: (text) => set({ textInput: text }),
       diffOriginal: "",

@@ -206,6 +206,41 @@ impl WindowManager {
         self.reposition_to_edge()
     }
 
+    /// 根据预设调整展开态宽度（仅在 Expanded 态有效）。
+    /// - "narrow" → 屏幕逻辑宽度的 1/6
+    /// - "wide"   → 屏幕逻辑宽度的 4/6（即 2/3）
+    /// 返回实际设置的逻辑像素宽度。
+    pub fn resize_to_preset(&mut self, preset: &str) -> Result<f64, Box<dyn std::error::Error>> {
+        if self.state != WindowState::Expanded {
+            return Err("not in expanded state".into());
+        }
+        let target = self.calc_preset_width(preset)?;
+        self.panel_width = target.max(350.0);
+        self.resize_to_expanded()?;
+        self.save_position();
+        Ok(self.panel_width)
+    }
+
+    /// 计算预设对应的逻辑像素宽度（不改变状态）。
+    pub fn calc_preset_width(&self, preset: &str) -> Result<f64, Box<dyn std::error::Error>> {
+        match preset {
+            "narrow" | "wide" => {},
+            _ => return Err("unknown preset".into()),
+        }
+        if let Some(monitor) = self.window.current_monitor()? {
+            let scale = monitor.scale_factor();
+            let mw = monitor.size().width as f64 / scale;
+            Ok(match preset {
+                "narrow" => (mw / 6.0).max(350.0),
+                "wide" => (mw * 2.0 / 3.0).max(350.0),
+                _ => unreachable!(),
+            })
+        } else {
+            Err("no monitor found".into())
+        }
+    }
+
+
     // ── 持久化 ──
 
     fn save_position(&mut self) {
