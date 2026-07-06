@@ -18,11 +18,11 @@ function WidthControls() {
       <button
         className={`width-btn ${widthPreset === "narrow" ? "active" : ""}`}
         onClick={() => handlePreset("narrow")}
-      >窄</button>
+      >{"\u25BA\u25C4"}</button>
       <button
         className={`width-btn ${widthPreset === "wide" ? "active" : ""}`}
         onClick={() => handlePreset("wide")}
-      >宽</button>
+      >{"\u25C4\u25BA"}</button>
     </div>
   );
 }
