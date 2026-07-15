@@ -11,6 +11,7 @@
 
 </div>
 
+ 
 ## ✨ 功能
 
 - **11 种开发工具** — 时间戳、JSON、文本处理、变量命名、文本比对、UUID、随机字符、URL 编解码、正则测试、JWT 解析、设置
@@ -107,6 +108,16 @@ deskpal/
 └── .github/workflows/  # CI 配置
 ```
 
+## 项目演示
+
+<div align="center">
+
+ <image src="./docs/20260715-231801.jpg" style="width: 500px" align="center">
+ <image src="./docs/20260715-231745.jpg" style="width: 500px" align="center">
+ <image src="./docs/20260715-231805.jpg" style="width: 500px" align="center">
+ <image src="./docs/20260715-231809.gif" style="width: 500px" align="center">
+</div> 
+   
 ## 💡 致谢
 
 部分功能实现借鉴自 [ctool](https://github.com/baiy/ctool) (MIT License)，感谢原作者 baiy。
